@@ -438,138 +438,74 @@
     // Récupère les boutons
     const buttons = document.querySelectorAll('.button');
 
-    // --- Touch events for each button (starts/stops continuous sound) ---
-    buttons.forEach(button => {
-      const column = button.closest('.column');
+    // --- Touch and Click events for each button ---
+buttons.forEach(button => {
+  const column = button.closest('.column');
 
-      // touchstart => oscillator start
-      button.addEventListener('touchstart', e => {
-        // Prevent default so we don't block single-finger scroll,
-        // but we'll still allow vertical scroll since we're not
-        // stopping it entirely (only on multi-touch).
-        e.preventDefault();
+  // Common logic for button selection
+  function handleButtonSelection() {
+    if (selectionMode) {
+      const allColumns = Array.from(document.querySelectorAll('.column'));
+      const columnIndex = allColumns.indexOf(column);
 
-        if (!selectionMode) {
-          const frequency = parseFloat(button.getAttribute('data-frequency'));
-          const osc = audioCtx.createOscillator();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-          osc.connect(audioCtx.destination);
-          osc.start();
+      // Example selection rule: if column is 1 or 5, allow up to 2 selections
+      if (columnIndex === 1 || columnIndex === 5) {
+        const buttonsInThisColumn = column.querySelectorAll('.button');
+        const alreadySelected = Array.from(buttonsInThisColumn)
+          .filter(b => b.classList.contains('selected'));
 
-          // Store oscillator for this button
-          activeOscillators.set(button, osc);
-
-          // If we're recording, record the start
-          if (isRecording) {
-            activeNotes.set(button, {
-              column,
-              frequency,
-              startTime: performance.now(),
-              duration: 0
-            });
-          }
-        }
-      });
-
-      // touchend => stop oscillator
-      button.addEventListener('touchend', e => {
-        e.preventDefault();
-
-        // Stop the oscillator
-        const osc = activeOscillators.get(button);
-        if (osc) {
-          osc.stop();
-          osc.disconnect();
-          activeOscillators.delete(button);
-        }
-
-        // If we were recording a note, finalize it
-        if (isRecording && activeNotes.has(button)) {
-          const noteObj = activeNotes.get(button);
-          const endTime = performance.now();
-          noteObj.duration = endTime - noteObj.startTime;
-          currentLayer.push(noteObj);
-          activeNotes.delete(button);
-        }
-      });
-
-      // touchcancel => also stop oscillator, finalize note
-      button.addEventListener('touchcancel', e => {
-        e.preventDefault();
-
-        const osc = activeOscillators.get(button);
-        if (osc) {
-          osc.stop();
-          osc.disconnect();
-          activeOscillators.delete(button);
-        }
-
-        if (isRecording && activeNotes.has(button)) {
-          const noteObj = activeNotes.get(button);
-          const endTime = performance.now();
-          noteObj.duration = endTime - noteObj.startTime;
-          currentLayer.push(noteObj);
-          activeNotes.delete(button);
-        }
-      });
-
-      // click => handle either selection mode or one-shot (kick/snare/bass) logic
-      button.addEventListener('click', () => {
-        if (selectionMode) {
-          // MODE SÉLECTION
-          const allColumns = Array.from(document.querySelectorAll('.column'));
-          const columnIndex = allColumns.indexOf(column);
-
-          // Example selection rule: if column is 1 or 5, allow up to 2 selections
-          if (columnIndex === 1 || columnIndex === 5) {
-            const buttonsInThisColumn = column.querySelectorAll('.button');
-            const alreadySelected = Array.from(buttonsInThisColumn)
-              .filter(b => b.classList.contains('selected'));
-
-            if (button.classList.contains('selected')) {
-              // Deselect if clicked again
-              button.classList.remove('selected');
-              selectedButtons.delete(button);
-            } else {
-              // Not selected yet
-              if (alreadySelected.length < 2) {
-                button.classList.add('selected');
-                selectedButtons.add(button);
-              } else {
-                // Already have 2 => remove them
-                for (const b of alreadySelected) {
-                  b.classList.remove('selected');
-                  selectedButtons.delete(b);
-                }
-                // Select the new one
-                button.classList.add('selected');
-                selectedButtons.add(button);
-              }
-            }
-          } else {
-            // Single selection columns
-            const buttonsInColumn = column.querySelectorAll('.button');
-            buttonsInColumn.forEach(btn => {
-              btn.classList.remove('selected');
-              selectedButtons.delete(btn);
-            });
-            if (!button.classList.contains('selected')) {
-              button.classList.add('selected');
-              selectedButtons.add(button);
-            } else {
-              button.classList.remove('selected');
-              selectedButtons.delete(button);
-            }
-          }
-
+        if (button.classList.contains('selected')) {
+          // Deselect if clicked/touched again
+          button.classList.remove('selected');
+          selectedButtons.delete(button);
         } else {
-          // MODE ENREGISTREMENT / BEAT-MAKING => one-shot trigger on click
-          const frequency = parseFloat(button.getAttribute('data-frequency'));
-          playColumnSoundStart(column, frequency);
+          // Not selected yet
+          if (alreadySelected.length < 2) {
+            button.classList.add('selected');
+            selectedButtons.add(button);
+          } else {
+            // Already have 2 => remove them
+            for (const b of alreadySelected) {
+              b.classList.remove('selected');
+              selectedButtons.delete(b);
+            }
+            // Select the new one
+            button.classList.add('selected');
+            selectedButtons.add(button);
+          }
         }
-      });
-    });
+      } else {
+        // Single selection columns
+        const buttonsInColumn = column.querySelectorAll('.button');
+        buttonsInColumn.forEach(btn => {
+          btn.classList.remove('selected');
+          selectedButtons.delete(btn);
+        });
+        if (!button.classList.contains('selected')) {
+          button.classList.add('selected');
+          selectedButtons.add(button);
+        } else {
+          button.classList.remove('selected');
+          selectedButtons.delete(button);
+        }
+      }
+    } else {
+      // MODE ENREGISTREMENT / BEAT-MAKING => one-shot trigger
+      const frequency = parseFloat(button.getAttribute('data-frequency'));
+      playColumnSoundStart(column, frequency);
+    }
+  }
+
+  // Add event listeners for both touch and click
+  button.addEventListener('click', handleButtonSelection);
+
+  // For touch devices, mimic click behavior
+  button.addEventListener('touchstart', e => {
+    e.preventDefault(); // Prevent unintended behavior
+    handleButtonSelection();
+  }, { passive: false });
+});
+
 
     // Big button to start/stop recording or handle selection
 const bigButton = document.querySelector('.big-button');
