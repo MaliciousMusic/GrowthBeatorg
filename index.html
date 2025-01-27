@@ -15,15 +15,14 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background-color: #000000;
-      /* Ensure that if content exceeds screen size, we can scroll. */
-      overflow-y: scroll;
     }
 
     /* --- Conteneur Principal --- */
     .main-flexbox {
       display: flex;
-      flex-direction: column;
-      height: 100vh;
+      
+      flex-direction: column; /* Empile les rangées verticalement */
+      height: 100vh; /* Occupe toute la hauteur de l'écran */
       box-sizing: border-box;
       background-color: #ffffff;
     }
@@ -59,7 +58,7 @@
       transform: scale(1.05); /* Agrandir légèrement au survol */
     }
 
-    /* --- Couleurs des boutons (examples) --- */
+    /* --- Couleurs des boutons --- */
     .blue0 { background-color: #61abf6; }
     .blue { background-color: #0066cc; }
     .blue2 { background-color: #002d5b; }
@@ -68,7 +67,7 @@
     .orange { background-color: #ff6600; }
 
     /* Greens */
-    .green0 { background-color: #98eb98; }
+    .green0 { background-color: #98eb98; } 
     .green1 { background-color: #79ff79; }
     .green2 { background-color: #52e252; }
     .green3 { background-color: #33cc33; }
@@ -76,8 +75,28 @@
     .green5 { background-color: #146814; }
     .green6 { background-color: #075007; }
     .green7 { background-color: #003700; }
-    .green8 { background-color: #002e00; }
-    .green9 { background-color: #001a00; }
+    .green8 { background-color: #002e00; } 
+    .green9 { background-color: #001a00; } 
+
+    /* Yellow-to-Brown Gradient */
+    .ye0 { background-color: #ffffcc; } /* Lightest yellow */
+    .ye1 { background-color: #ffff99; }
+    .ye2 { background-color: #ffcc66; }
+    .ye3 { background-color: #ff9933; } /* Orange */
+    .ye4 { background-color: #ff6600; }
+    .ye5 { background-color: #cc5200; }
+    .ye6 { background-color: #993d00; }
+    .ye7 { background-color: #662900; }
+    .ye8 { background-color: #4d1f00; }
+    .ye9 { background-color: #331400; } /* Darkest brown */
+
+    .cyan { background-color: #00cccc; }
+    .pink { background-color: #ff66cc; }
+    .fuschia { background-color: #990b5e; }
+    .purple { background-color: #4f045e; }
+    .darkgray { background-color: #454545; }
+    .gray { background-color: #808080; }
+    .black { background-color: #171717; }
 
     /* Big Button Container */
     .big-button-container {
@@ -94,6 +113,7 @@
       border: #0066cc;
       color: #000;
       font-family: "Calibri";
+     
       font-size: 1.2rem;
       width: 100%; /* Take full width of container */
       cursor: pointer;
@@ -112,7 +132,7 @@
 </head>
 <body>
   <div class="main-flexbox">
-    <!-- Première Rangée (Example) -->
+    <!-- Première Rangée -->
     <div class="row">
       <div class="column" data-sound="hihat">
         <button class="button blue2" data-frequency="1000"></button>
@@ -138,19 +158,53 @@
         <button class="button orange" data-frequency="200"></button>
         <button class="button yellow" data-frequency="100"></button>
         <button class="button green1" data-frequency="100"></button>
-        <button class="button blue0" data-frequency="500"></button>
-        <button class="button pink" data-frequency="600"></button>
-        <button class="button fuschia" data-frequency="700"></button>
-        <button class="button purple" data-frequency="800"></button>
+        <button class="button cyan" data-frequency="300"></button>
+        <button class="button pink" data-frequency="500"></button>
+        <button class="button fuschia" data-frequency="600"></button>
+        <button class="button purple" data-frequency="700"></button>
+        
       </div>
+
+      
+      <div class="column" data-sound="bass">
+        <button class="button red" data-frequency="100"></button>
+        <button class="button orange" data-frequency="200"></button>
+        <button class="button yellow" data-frequency="100"></button>
+        <button class="button green1" data-frequency="100"></button>
+        <button class="button cyan" data-frequency="300"></button>
+        <button class="button pink" data-frequency="500"></button>
+        <button class="button fuschia" data-frequency="600"></button>
+        <button class="button purple" data-frequency="700"></button>
+      </div>
+      
+      <div class="column" data-sound="snare">
+        <button class="button blue0" data-frequency="123.25"></button>
+        <button class="button blue" data-frequency="587.33"></button>
+        <button class="button blue2" data-frequency="659.25"></button>
+      </div>
+     
+      <div class="column">
+        <button class="button ye0" data-frequency="230"></button>
+        <button class="button ye1" data-frequency="260"></button>
+        <button class="button ye2" data-frequency="290"></button>
+        <button class="button ye3" data-frequency="320"></button>
+        <button class="button ye1" data-frequency="380"></button>
+        <button class="button ye2" data-frequency="410"></button>
+        <button class="button ye3" data-frequency="440"></button>
+        <button class="button ye4" data-frequency="470"></button>
+        <button class="button ye5" data-frequency="500"></button>
+        <button class="button ye6" data-frequency="530"></button>
+        <button class="button ye7" data-frequency="560"></button>
+        <button class="button ye8" data-frequency="590"></button>
+        <button class="button ye9" data-frequency="350"></button>
+      </div>
+      
     </div>
-    <!-- You can add more rows/columns as needed -->
 
     <div class="big-button-container">
       <button class="big-button">R E C O R D</button>
     </div>
   </div>
-
   <script>
     // --- Création du contexte audio ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
