@@ -438,11 +438,13 @@
     // Récupère les boutons
     const buttons = document.querySelectorAll('.button');
 
-    // --- Touch and Click events for each button ---
+
+
+// --- Touch and Click events for each button ---
 buttons.forEach(button => {
   const column = button.closest('.column');
 
-  // Common logic for button selection
+  // Common logic for button selection or playback
   function handleButtonSelection() {
     if (selectionMode) {
       const allColumns = Array.from(document.querySelectorAll('.column'));
@@ -496,15 +498,90 @@ buttons.forEach(button => {
     }
   }
 
-  // Add event listeners for both touch and click
+  // Handle touchstart for recording
+  button.addEventListener('touchstart', e => {
+    e.preventDefault();
+
+    if (!selectionMode) {
+      const frequency = parseFloat(button.getAttribute('data-frequency'));
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+      osc.connect(audioCtx.destination);
+      osc.start();
+
+      // Store oscillator for this button
+      activeOscillators.set(button, osc);
+
+      // If we're recording, start recording the note
+      if (isRecording) {
+        activeNotes.set(button, {
+          column,
+          frequency,
+          startTime: performance.now(),
+          duration: 0
+        });
+      }
+    }
+  });
+
+  // Handle touchend for recording
+  button.addEventListener('touchend', e => {
+    e.preventDefault();
+
+    // Stop the oscillator
+    const osc = activeOscillators.get(button);
+    if (osc) {
+      osc.stop();
+      osc.disconnect();
+      activeOscillators.delete(button);
+    }
+
+    // Finalize note recording
+    if (isRecording && activeNotes.has(button)) {
+      const noteObj = activeNotes.get(button);
+      const endTime = performance.now();
+      noteObj.duration = endTime - noteObj.startTime;
+      currentLayer.push(noteObj);
+      activeNotes.delete(button);
+    }
+  });
+
+  // Handle touchcancel for safety
+  button.addEventListener('touchcancel', e => {
+    e.preventDefault();
+
+    // Stop the oscillator
+    const osc = activeOscillators.get(button);
+    if (osc) {
+      osc.stop();
+      osc.disconnect();
+      activeOscillators.delete(button);
+    }
+
+    // Finalize note recording if needed
+    if (isRecording && activeNotes.has(button)) {
+      const noteObj = activeNotes.get(button);
+      const endTime = performance.now();
+      noteObj.duration = endTime - noteObj.startTime;
+      currentLayer.push(noteObj);
+      activeNotes.delete(button);
+    }
+  });
+
+  // Add click event for selection or playback
   button.addEventListener('click', handleButtonSelection);
 
-  // For touch devices, mimic click behavior
+  // Add touchstart for selection
   button.addEventListener('touchstart', e => {
-    e.preventDefault(); // Prevent unintended behavior
+    e.preventDefault();
     handleButtonSelection();
   }, { passive: false });
 });
+
+
+
+
 
 
     // Big button to start/stop recording or handle selection
