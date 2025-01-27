@@ -572,79 +572,109 @@
     });
 
     // Big button to start/stop recording or handle selection
-    const bigButton = document.querySelector('.big-button');
+const bigButton = document.querySelector('.big-button');
 
-    // mousedown => possible long press to toggle selectionMode (2s)
-    bigButton.addEventListener('mousedown', () => {
-      holdTimeout = setTimeout(() => {
-        selectionMode = !selectionMode;
-        bigButton.textContent = selectionMode
-          ? 'RECORD AGAIN'
-          : 'RECORD';
+// Common function to handle recording logic
+function handleBigButtonLogic() {
+  if (!selectionMode) {
+    // RECORDING LOGIC
+    if (isRecording) {
+      // Stop recording
+      isRecording = false;
+      // Finalize all active notes
+      activeNotes.forEach((noteObj, btn) => {
+        noteObj.duration = performance.now() - noteObj.startTime;
+        currentLayer.push(noteObj);
+      });
+      activeNotes.clear();
 
-        // If we exit selection mode, reset selection
-        if (!selectionMode) {
-          selectedButtons.forEach(btn => btn.classList.remove('selected'));
-          selectedButtons.clear();
-        }
-      }, 2000);
-    });
-
-    // mouseup => either stop the hold or handle normal record logic
-    bigButton.addEventListener('mouseup', () => {
-      clearTimeout(holdTimeout);
-
-      if (!selectionMode) {
-        // RECORDING LOGIC
-        if (isRecording) {
-          // Stop recording
-          isRecording = false;
-          // finalize all active notes
-          activeNotes.forEach((noteObj, btn) => {
-            noteObj.duration = performance.now() - noteObj.startTime;
-            currentLayer.push(noteObj);
-          });
-          activeNotes.clear();
-
-          if (currentLayer.length) {
-            recordedLayers.push(currentLayer);
-          }
-          bigButton.textContent = 'RECORD';
-
-          // Playback if we have layers recorded
-          if (recordedLayers.length > 0) {
-            playRecordedLayers();
-          }
-        } else {
-          // Start recording
-          isRecording = true;
-          currentLayer = [];
-          bigButton.textContent = 'STOP RECORDING';
-        }
-      } else {
-        // SELECTION MODE: SEND DATA
-        const selectedData = Array.from(selectedButtons).map(button => ({
-          frequency: button.getAttribute('data-frequency'),
-          color: getComputedStyle(button).backgroundColor
-        }));
-        console.log('Selected Data Sent:', selectedData);
-
-        // Unselect all after sending the data
-        selectedButtons.forEach(btn => btn.classList.remove('selected'));
-        selectedButtons.clear();
-
-        // Simple confirmation visual
-        bigButton.style.color = 'green';
-        setTimeout(() => {
-          bigButton.style.color = '';
-        }, 1000);
+      if (currentLayer.length) {
+        recordedLayers.push(currentLayer);
       }
-    });
+      bigButton.textContent = 'RECORD';
 
-    // mouseleave => cancel hold if we leave the big button
-    bigButton.addEventListener('mouseleave', () => {
-      clearTimeout(holdTimeout);
-    });
+      // Playback if we have layers recorded
+      if (recordedLayers.length > 0) {
+        playRecordedLayers();
+      }
+    } else {
+      // Start recording
+      isRecording = true;
+      currentLayer = [];
+      bigButton.textContent = 'STOP RECORDING';
+    }
+  } else {
+    // SELECTION MODE: SEND DATA
+    const selectedData = Array.from(selectedButtons).map(button => ({
+      frequency: button.getAttribute('data-frequency'),
+      color: getComputedStyle(button).backgroundColor
+    }));
+    console.log('Selected Data Sent:', selectedData);
+
+    // Unselect all after sending the data
+    selectedButtons.forEach(btn => btn.classList.remove('selected'));
+    selectedButtons.clear();
+
+    // Simple confirmation visual
+    bigButton.style.color = 'green';
+    setTimeout(() => {
+      bigButton.style.color = '';
+    }, 1000);
+  }
+}
+
+// mousedown/touchstart => possible long press to toggle selectionMode (2s)
+bigButton.addEventListener('mousedown', () => {
+  holdTimeout = setTimeout(() => {
+    selectionMode = !selectionMode;
+    bigButton.textContent = selectionMode
+      ? 'RECORD AGAIN'
+      : 'RECORD';
+
+    // If we exit selection mode, reset selection
+    if (!selectionMode) {
+      selectedButtons.forEach(btn => btn.classList.remove('selected'));
+      selectedButtons.clear();
+    }
+  }, 2000);
+});
+
+bigButton.addEventListener('touchstart', (e) => {
+  e.preventDefault(); // Prevent default to avoid unwanted browser behaviors
+  holdTimeout = setTimeout(() => {
+    selectionMode = !selectionMode;
+    bigButton.textContent = selectionMode
+      ? 'RECORD AGAIN'
+      : 'RECORD';
+
+    // If we exit selection mode, reset selection
+    if (!selectionMode) {
+      selectedButtons.forEach(btn => btn.classList.remove('selected'));
+      selectedButtons.clear();
+    }
+  }, 2000);
+}, { passive: false });
+
+// mouseup/touchend => either stop the hold or handle normal record logic
+bigButton.addEventListener('mouseup', () => {
+  clearTimeout(holdTimeout);
+  handleBigButtonLogic();
+});
+
+bigButton.addEventListener('touchend', (e) => {
+  e.preventDefault(); // Prevent default to avoid unwanted browser behaviors
+  clearTimeout(holdTimeout);
+  handleBigButtonLogic();
+}, { passive: false });
+
+// mouseleave/touchcancel => cancel hold if we leave the big button
+bigButton.addEventListener('mouseleave', () => {
+  clearTimeout(holdTimeout);
+});
+
+bigButton.addEventListener('touchcancel', () => {
+  clearTimeout(holdTimeout);
+});
   </script>
 </body>
 </html>
