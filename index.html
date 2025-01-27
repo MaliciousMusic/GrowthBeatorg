@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!--
+    We limit zoom but still allow scrolling by using maximum-scale=1 and
+    'user-scalable=no'. We'll also handle double-tap in JS events below.
+  -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Sound Buttons (Web Audio API)</title>
   <style>
@@ -11,14 +15,15 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background-color: #000000;
+      /* Ensure that if content exceeds screen size, we can scroll. */
+      overflow-y: scroll;
     }
 
     /* --- Conteneur Principal --- */
     .main-flexbox {
       display: flex;
-      
-      flex-direction: column; /* Empile les rangées verticalement */
-      height: 100vh; /* Occupe toute la hauteur de l'écran */
+      flex-direction: column;
+      height: 100vh;
       box-sizing: border-box;
       background-color: #ffffff;
     }
@@ -54,7 +59,7 @@
       transform: scale(1.05); /* Agrandir légèrement au survol */
     }
 
-    /* --- Couleurs des boutons --- */
+    /* --- Couleurs des boutons (examples) --- */
     .blue0 { background-color: #61abf6; }
     .blue { background-color: #0066cc; }
     .blue2 { background-color: #002d5b; }
@@ -63,7 +68,7 @@
     .orange { background-color: #ff6600; }
 
     /* Greens */
-    .green0 { background-color: #98eb98; } 
+    .green0 { background-color: #98eb98; }
     .green1 { background-color: #79ff79; }
     .green2 { background-color: #52e252; }
     .green3 { background-color: #33cc33; }
@@ -71,28 +76,8 @@
     .green5 { background-color: #146814; }
     .green6 { background-color: #075007; }
     .green7 { background-color: #003700; }
-    .green8 { background-color: #002e00; } 
-    .green9 { background-color: #001a00; } 
-
-    /* Yellow-to-Brown Gradient */
-    .ye0 { background-color: #ffffcc; } /* Lightest yellow */
-    .ye1 { background-color: #ffff99; }
-    .ye2 { background-color: #ffcc66; }
-    .ye3 { background-color: #ff9933; } /* Orange */
-    .ye4 { background-color: #ff6600; }
-    .ye5 { background-color: #cc5200; }
-    .ye6 { background-color: #993d00; }
-    .ye7 { background-color: #662900; }
-    .ye8 { background-color: #4d1f00; }
-    .ye9 { background-color: #331400; } /* Darkest brown */
-
-    .cyan { background-color: #00cccc; }
-    .pink { background-color: #ff66cc; }
-    .fuschia { background-color: #990b5e; }
-    .purple { background-color: #4f045e; }
-    .darkgray { background-color: #454545; }
-    .gray { background-color: #808080; }
-    .black { background-color: #171717; }
+    .green8 { background-color: #002e00; }
+    .green9 { background-color: #001a00; }
 
     /* Big Button Container */
     .big-button-container {
@@ -109,7 +94,6 @@
       border: #0066cc;
       color: #000;
       font-family: "Calibri";
-     
       font-size: 1.2rem;
       width: 100%; /* Take full width of container */
       cursor: pointer;
@@ -128,7 +112,7 @@
 </head>
 <body>
   <div class="main-flexbox">
-    <!-- Première Rangée -->
+    <!-- Première Rangée (Example) -->
     <div class="row">
       <div class="column" data-sound="hihat">
         <button class="button blue2" data-frequency="1000"></button>
@@ -154,48 +138,13 @@
         <button class="button orange" data-frequency="200"></button>
         <button class="button yellow" data-frequency="100"></button>
         <button class="button green1" data-frequency="100"></button>
-        <button class="button cyan" data-frequency="300"></button>
-        <button class="button pink" data-frequency="500"></button>
-        <button class="button fuschia" data-frequency="600"></button>
-        <button class="button purple" data-frequency="700"></button>
-        
+        <button class="button blue0" data-frequency="500"></button>
+        <button class="button pink" data-frequency="600"></button>
+        <button class="button fuschia" data-frequency="700"></button>
+        <button class="button purple" data-frequency="800"></button>
       </div>
-
-      
-      <div class="column" data-sound="bass">
-        <button class="button red" data-frequency="100"></button>
-        <button class="button orange" data-frequency="200"></button>
-        <button class="button yellow" data-frequency="100"></button>
-        <button class="button green1" data-frequency="100"></button>
-        <button class="button cyan" data-frequency="300"></button>
-        <button class="button pink" data-frequency="500"></button>
-        <button class="button fuschia" data-frequency="600"></button>
-        <button class="button purple" data-frequency="700"></button>
-      </div>
-      
-      <div class="column" data-sound="snare">
-        <button class="button blue0" data-frequency="123.25"></button>
-        <button class="button blue" data-frequency="587.33"></button>
-        <button class="button blue2" data-frequency="659.25"></button>
-      </div>
-     
-      <div class="column">
-        <button class="button ye0" data-frequency="230"></button>
-        <button class="button ye1" data-frequency="260"></button>
-        <button class="button ye2" data-frequency="290"></button>
-        <button class="button ye3" data-frequency="320"></button>
-        <button class="button ye1" data-frequency="380"></button>
-        <button class="button ye2" data-frequency="410"></button>
-        <button class="button ye3" data-frequency="440"></button>
-        <button class="button ye4" data-frequency="470"></button>
-        <button class="button ye5" data-frequency="500"></button>
-        <button class="button ye6" data-frequency="530"></button>
-        <button class="button ye7" data-frequency="560"></button>
-        <button class="button ye8" data-frequency="590"></button>
-        <button class="button ye9" data-frequency="350"></button>
-      </div>
-      
     </div>
+    <!-- You can add more rows/columns as needed -->
 
     <div class="big-button-container">
       <button class="big-button">R E C O R D</button>
@@ -212,11 +161,12 @@
     let currentLayer = [];                 // Tableau temporaire pour la couche en cours d'enregistrement
     let playbackTimeouts = [];             // Tableau des ID de timeout pour la lecture en boucle
 
-    // This map will hold data about the note that started on "mousedown"
-    // but hasn't finished yet (we finalize it on "mouseup").
+    // Map for notes that start during recording
     let activeNotes = new Map();
 
-    let osc = null;                        // Oscillateur utilisé pour les sons continus (mode "mousedown")
+    // Map for active oscillators (one per button) to properly stop each.
+    const activeOscillators = new Map();
+
     let selectionMode = false;             // Mode sélection
     let selectedButtons = new Set();       // Ensemble des boutons actuellement sélectionnés
     let holdTimeout;                       // ID du timeout pour le passage en mode sélection après un appui long
@@ -304,35 +254,33 @@
       oscillator.stop(audioCtx.currentTime + 0.5);
     }
 
-    // Identifie le type de son à jouer (short, "one-shot" style)
+    // Identifie le type de son à jouer (short, one-shot style)
     function playColumnSoundStart(column, frequency) {
       const soundType = column.getAttribute('data-sound');
-      if (soundType === 'kick') {
-        playKick(frequency);
-      } else if (soundType === 'snare') {
-        playSnare(frequency);
-      } else if (soundType === 'hihat') {
-        playHiHat(frequency);
-      } else if (soundType === 'bass') {
-        playBass(frequency);
-      } else {
-        playSound(frequency);
+      switch (soundType) {
+        case 'kick':   playKick(frequency);   break;
+        case 'snare':  playSnare(frequency);  break;
+        case 'hihat':  playHiHat(frequency);  break;
+        case 'bass':   playBass(frequency);   break;
+        default:       playSound(frequency);  break;
       }
     }
 
     // A specialized function to schedule a continuous oscillator for playback,
-    // respecting 'startTime' and 'duration'.
+    // respecting 'startTime' and 'duration' (used in loop playback).
     function scheduleNotePlayback(column, frequency, offset, duration) {
-      // We'll start the sound at offset ms from "now"
       const startTimeout = setTimeout(() => {
-        // If you want "one-shot" style for certain columns, do so here:
+        // For certain columns, do one-shot
         const soundType = column.getAttribute('data-sound');
-        if (soundType === 'kick' || soundType === 'snare' ||
-            soundType === 'hihat' || soundType === 'bass') {
-          // one-shot
+        if (
+          soundType === 'kick' ||
+          soundType === 'snare' ||
+          soundType === 'hihat' ||
+          soundType === 'bass'
+        ) {
           playColumnSoundStart(column, frequency);
         } else {
-          // continuous oscillator, THEN stop it after 'duration'
+          // continuous oscillator, stop it after 'duration'
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
 
@@ -359,8 +307,9 @@
       playbackTimeouts.forEach(timeout => clearTimeout(timeout));
       playbackTimeouts = [];
 
+      if (!recordedLayers.length) return;
+
       // Calcule la durée max pour savoir quand relancer la boucle
-      // We use (startTime + duration) on each note to find total length
       const maxDuration = Math.max(
         ...recordedLayers.flatMap(layer =>
           layer.map(entry => (entry.startTime + entry.duration) - layer[0].startTime)
@@ -376,8 +325,8 @@
           scheduleNotePlayback(
             entry.column,
             entry.frequency,
-            offset,        // ms from now
-            entry.duration // how long to hold
+            offset,
+            entry.duration
           );
         });
       });
@@ -387,94 +336,119 @@
       playbackTimeouts.push(loopTimeout);
     }
 
-    // Récupère toutes les colonnes pour repérer leur index
-    const allColumns = Array.from(document.querySelectorAll('.column'));
+    // --- Double-tap zoom prevention while allowing scroll ---
+    let lastTouchEnd = 0;
+    document.addEventListener(
+      'touchstart',
+      (event) => {
+        // If more than one finger, prevent default to avoid pinch-zoom
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      },
+      { passive: false }
+    );
 
-    // Gère les événements pour les boutons
+    document.addEventListener(
+      'touchend',
+      (event) => {
+        const now = new Date().getTime();
+        // If double-tap in under 300ms, prevent zoom
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      },
+      { passive: false }
+    );
+
+    // Récupère les boutons
     const buttons = document.querySelectorAll('.button');
+
+    // --- Touch events for each button (starts/stops continuous sound) ---
     buttons.forEach(button => {
       const column = button.closest('.column');
 
-      // Prevent double-tap zoom on mobile
-document.addEventListener('touchstart', (event) => {
-  if (event.touches.length > 1) {
-    event.preventDefault();
-  }
-}, { passive: false });
+      // touchstart => oscillator start
+      button.addEventListener('touchstart', e => {
+        // Prevent default so we don't block single-finger scroll,
+        // but we'll still allow vertical scroll since we're not
+        // stopping it entirely (only on multi-touch).
+        e.preventDefault();
 
-// Handle touch input for tactile devices
-buttons.forEach(button => {
-  const column = button.closest('.column');
+        if (!selectionMode) {
+          const frequency = parseFloat(button.getAttribute('data-frequency'));
+          const osc = audioCtx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+          osc.connect(audioCtx.destination);
+          osc.start();
 
-  // Touchstart behaves like mousedown
-  button.addEventListener('touchstart', (e) => {
-    e.preventDefault(); // Prevent default touch behavior
-    if (!selectionMode) {
-      const frequency = parseFloat(button.getAttribute('data-frequency'));
-      osc = audioCtx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-      osc.connect(audioCtx.destination);
-      osc.start();
+          // Store oscillator for this button
+          activeOscillators.set(button, osc);
 
-      // Record note if in recording mode
-      if (isRecording) {
-        activeNotes.set(button, {
-          column,
-          frequency,
-          startTime: performance.now(),
-          duration: 0
-        });
-      }
-    }
-  });
+          // If we're recording, record the start
+          if (isRecording) {
+            activeNotes.set(button, {
+              column,
+              frequency,
+              startTime: performance.now(),
+              duration: 0
+            });
+          }
+        }
+      });
 
-  // Touchend behaves like mouseup
-  button.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    if (!selectionMode && osc) {
-      osc.stop();
-      osc.disconnect();
-      osc = null;
-    }
+      // touchend => stop oscillator
+      button.addEventListener('touchend', e => {
+        e.preventDefault();
 
-    // Finalize recording the note
-    if (isRecording && activeNotes.has(button)) {
-      const noteObj = activeNotes.get(button);
-      const endTime = performance.now();
-      noteObj.duration = endTime - noteObj.startTime;
-      currentLayer.push(noteObj);
-      activeNotes.delete(button);
-    }
-  });
+        // Stop the oscillator
+        const osc = activeOscillators.get(button);
+        if (osc) {
+          osc.stop();
+          osc.disconnect();
+          activeOscillators.delete(button);
+        }
 
-  // Touchcancel handles cases where the touch is interrupted
-  button.addEventListener('touchcancel', (e) => {
-    e.preventDefault();
-    if (!selectionMode && osc) {
-      osc.stop();
-      osc.disconnect();
-      osc = null;
-    }
+        // If we were recording a note, finalize it
+        if (isRecording && activeNotes.has(button)) {
+          const noteObj = activeNotes.get(button);
+          const endTime = performance.now();
+          noteObj.duration = endTime - noteObj.startTime;
+          currentLayer.push(noteObj);
+          activeNotes.delete(button);
+        }
+      });
 
-    if (isRecording && activeNotes.has(button)) {
-      const noteObj = activeNotes.get(button);
-      const endTime = performance.now();
-      noteObj.duration = endTime - noteObj.startTime;
-      currentLayer.push(noteObj);
-      activeNotes.delete(button);
-    }
-  });
-});
+      // touchcancel => also stop oscillator, finalize note
+      button.addEventListener('touchcancel', e => {
+        e.preventDefault();
 
+        const osc = activeOscillators.get(button);
+        if (osc) {
+          osc.stop();
+          osc.disconnect();
+          activeOscillators.delete(button);
+        }
 
-      // click => handle selection mode or immediate one-shot playback
+        if (isRecording && activeNotes.has(button)) {
+          const noteObj = activeNotes.get(button);
+          const endTime = performance.now();
+          noteObj.duration = endTime - noteObj.startTime;
+          currentLayer.push(noteObj);
+          activeNotes.delete(button);
+        }
+      });
+
+      // click => handle either selection mode or one-shot (kick/snare/bass) logic
       button.addEventListener('click', () => {
         if (selectionMode) {
-          // --- MODE SÉLECTION ---
+          // MODE SÉLECTION
+          const allColumns = Array.from(document.querySelectorAll('.column'));
           const columnIndex = allColumns.indexOf(column);
 
-          // Example: special rule for columns 1 or 5 => up to 2 selections
+          // Example selection rule: if column is 1 or 5, allow up to 2 selections
           if (columnIndex === 1 || columnIndex === 5) {
             const buttonsInThisColumn = column.querySelectorAll('.button');
             const alreadySelected = Array.from(buttonsInThisColumn)
@@ -485,7 +459,7 @@ buttons.forEach(button => {
               button.classList.remove('selected');
               selectedButtons.delete(button);
             } else {
-              // If not selected yet
+              // Not selected yet
               if (alreadySelected.length < 2) {
                 button.classList.add('selected');
                 selectedButtons.add(button);
@@ -501,7 +475,7 @@ buttons.forEach(button => {
               }
             }
           } else {
-            // For other columns => single selection
+            // Single selection columns
             const buttonsInColumn = column.querySelectorAll('.button');
             buttonsInColumn.forEach(btn => {
               btn.classList.remove('selected');
@@ -517,22 +491,17 @@ buttons.forEach(button => {
           }
 
         } else {
-          // --- MODE ENREGISTREMENT / BEAT-MAKING ---
-          // Optional one-shot sound on click
+          // MODE ENREGISTREMENT / BEAT-MAKING => one-shot trigger on click
           const frequency = parseFloat(button.getAttribute('data-frequency'));
-          const soundType = column.getAttribute('data-sound');
-          if (soundType === 'kick' || soundType === 'snare' ||
-              soundType === 'hihat' || soundType === 'bass') {
-            playColumnSoundStart(column, frequency);
-          }
+          playColumnSoundStart(column, frequency);
         }
       });
     });
 
-    // Big button (record / selection)
+    // Big button to start/stop recording or handle selection
     const bigButton = document.querySelector('.big-button');
 
-    // mousedown => possible long press to toggle selectionMode
+    // mousedown => possible long press to toggle selectionMode (2s)
     bigButton.addEventListener('mousedown', () => {
       holdTimeout = setTimeout(() => {
         selectionMode = !selectionMode;
@@ -548,15 +517,16 @@ buttons.forEach(button => {
       }, 2000);
     });
 
-    // mouseup => either stop the hold or handle record logic
+    // mouseup => either stop the hold or handle normal record logic
     bigButton.addEventListener('mouseup', () => {
       clearTimeout(holdTimeout);
 
       if (!selectionMode) {
-        // --- RECORDING LOGIC ---
+        // RECORDING LOGIC
         if (isRecording) {
           // Stop recording
           isRecording = false;
+          // finalize all active notes
           activeNotes.forEach((noteObj, btn) => {
             noteObj.duration = performance.now() - noteObj.startTime;
             currentLayer.push(noteObj);
@@ -568,7 +538,7 @@ buttons.forEach(button => {
           }
           bigButton.textContent = 'RECORD';
 
-          // Playback if we have layers
+          // Playback if we have layers recorded
           if (recordedLayers.length > 0) {
             playRecordedLayers();
           }
@@ -579,18 +549,18 @@ buttons.forEach(button => {
           bigButton.textContent = 'STOP RECORDING';
         }
       } else {
-        // --- SELECTION MODE: SEND DATA ---
+        // SELECTION MODE: SEND DATA
         const selectedData = Array.from(selectedButtons).map(button => ({
           frequency: button.getAttribute('data-frequency'),
           color: getComputedStyle(button).backgroundColor
         }));
         console.log('Selected Data Sent:', selectedData);
 
-        // === Unselect all after sending the data ===
+        // Unselect all after sending the data
         selectedButtons.forEach(btn => btn.classList.remove('selected'));
         selectedButtons.clear();
 
-        // Confirmation visual
+        // Simple confirmation visual
         bigButton.style.color = 'green';
         setTimeout(() => {
           bigButton.style.color = '';
