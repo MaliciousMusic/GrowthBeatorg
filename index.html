@@ -81,16 +81,16 @@
     .green9 { background-color: #001a00; } 
 
     /* Yellow-to-Brown Gradient */
-    .ye0 { background-color: #ffffcc; } /* Lightest yellow */
+    .ye0 { background-color: #ffffcc; }
     .ye1 { background-color: #ffff99; }
     .ye2 { background-color: #ffcc66; }
-    .ye3 { background-color: #ff9933; } /* Orange */
+    .ye3 { background-color: #ff9933; }
     .ye4 { background-color: #ff6600; }
     .ye5 { background-color: #cc5200; }
     .ye6 { background-color: #993d00; }
     .ye7 { background-color: #662900; }
     .ye8 { background-color: #4d1f00; }
-    .ye9 { background-color: #331400; } /* Darkest brown */
+    .ye9 { background-color: #331400; }
 
     .cyan { background-color: #00cccc; }
     .pink { background-color: #ff66cc; }
@@ -103,10 +103,11 @@
     /* Big Button Container */
     .big-button-container {
       display: flex;
-      justify-content: center; /* Center the button horizontally */
+      justify-content: center; /* Center horizontally */
       align-items: center;
-      height: 50px; /* Adjust height as needed */
-      width: 100%; /* Full width */
+      height: 50px; /* Adjust as needed */
+      width: 100%;
+      gap: 10px; /* space between buttons */
     }
 
     /* Big Button Style */
@@ -116,7 +117,7 @@
       color: #000;
       font-family: "Arial";
       font-size: 1.2rem;
-      width: 100%; /* Take full width of container */
+      width: 100%; /* Take full width in the container */
       cursor: pointer;
       transition: transform 0.2s, background-color 0.3s;
     }
@@ -139,7 +140,7 @@
       justify-content: center; /* Center text horizontally */
       font-size: 1rem; /* Adjust font size as needed */
       text-align: center;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for styling */
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow */
     }
   </style>
 </head>
@@ -222,17 +223,24 @@
 
     </div>
 
+    <!-- RECORD and DELETE LOOP Buttons -->
     <div class="big-button-container">
-      <button class="big-button">R E C O R D</button>
+      <button id="recordBtn" class="big-button">R E C O R D</button>
+      <button id="deleteBtn" class="big-button" disabled>DELETE LOOP</button>
     </div>
 
     <footer class="footer">
       <p>© 2025 GrowthBeat. All Rights Reserved.</p>
     </footer>
-
   </div>
 
   <script>
+    // Prompt user for a username
+    let username = null;
+    window.addEventListener('DOMContentLoaded', () => {
+      username = prompt("Enter your username:");
+    });
+
     // --- Création du contexte audio ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -261,7 +269,6 @@
       const gain = audioCtx.createGain();
 
       osc.type = "sine";
-      // Start low for that 808 rumble; you can tweak to taste
       osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
 
       gain.gain.setValueAtTime(1, audioCtx.currentTime);
@@ -291,7 +298,6 @@
       filter.frequency.value = frequency * 2;
       filter.Q.value = 50;
 
-      // Sharper attack, shorter duration
       gain.gain.setValueAtTime(1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
 
@@ -309,12 +315,10 @@
       osc.type = 'sine';
       osc.frequency.value = frequency;
 
-      // Basic choir formant
       formantFilter.type = 'bandpass';
       formantFilter.frequency.value = 800;
       formantFilter.Q.value = 10;
 
-      // Volume envelope
       gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
 
@@ -332,7 +336,6 @@
       osc1.type = 'sawtooth';
       osc1.frequency.value = frequency;
 
-      // Slight detune
       osc2.type = 'sawtooth';
       osc2.frequency.value = frequency * 1.01;
 
@@ -356,7 +359,6 @@
 
       osc1.type = 'sine';
       osc1.frequency.value = frequency;
-
       osc2.type = 'sine';
       osc2.frequency.value = frequency * 1.5;
 
@@ -384,7 +386,6 @@
       osc2.type = 'triangle';
       osc2.frequency.value = frequency * 0.99;
 
-      // Band-pass for string timbre
       filter.type = 'bandpass';
       filter.frequency.value = frequency;
       filter.Q.value = 12;
@@ -424,7 +425,7 @@
           playSynth6(frequency);
           break;
         default:
-          // Fallback (could also use any other effect you want)
+          // Fallback
           playChoir(frequency);
           break;
       }
@@ -434,7 +435,7 @@
     function scheduleNotePlayback(column, frequency, offset, duration) {
       const soundType = column.getAttribute('data-sound');
 
-      // If it's one of our "short" or "one-shot" sounds, schedule directly:
+      // If it's one of our "one-shot" sounds:
       if (
         soundType === 'kick' ||
         soundType === 'distortion' ||
@@ -446,10 +447,9 @@
         const startTimeout = setTimeout(() => {
           playColumnSoundStart(column, frequency);
         }, offset);
-
         playbackTimeouts.push(startTimeout);
       } else {
-        // Else fallback to the older continuous oscillator approach
+        // Else fallback to older approach
         const startTimeout = setTimeout(() => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -511,7 +511,6 @@
     document.addEventListener(
       'touchstart',
       (event) => {
-        // If more than one finger, prevent default to avoid pinch-zoom
         if (event.touches.length > 1) {
           event.preventDefault();
         }
@@ -675,12 +674,12 @@
       }, { passive: false });
     });
 
+    // Big button references
+    const recordButton = document.getElementById('recordBtn');
+    const deleteButton = document.getElementById('deleteBtn');
 
-    // Big button to start/stop recording or handle selection
-    const bigButton = document.querySelector('.big-button');
-
-    // Common function to handle big button logic
-    function handleBigButtonLogic() {
+    // Common function to handle record button logic
+    function handleRecordButtonLogic() {
       if (!selectionMode) {
         // RECORDING LOGIC
         if (isRecording) {
@@ -696,7 +695,7 @@
           if (currentLayer.length) {
             recordedLayers.push(currentLayer);
           }
-          bigButton.textContent = 'RECORD';
+          recordButton.textContent = 'RECORD';
 
           // Playback if we have layers recorded
           if (recordedLayers.length > 0) {
@@ -706,7 +705,7 @@
           // Start recording
           isRecording = true;
           currentLayer = [];
-          bigButton.textContent = 'STOP RECORDING';
+          recordButton.textContent = 'STOP RECORDING';
         }
       } else {
         // SELECTION MODE: SEND DATA
@@ -721,64 +720,93 @@
         selectedButtons.clear();
 
         // Simple confirmation visual
-        bigButton.style.color = 'green';
+        recordButton.style.color = 'green';
         setTimeout(() => {
-          bigButton.style.color = '';
+          recordButton.style.color = '';
         }, 1000);
       }
     }
 
-    // mousedown/touchstart => possible long press to toggle selectionMode (2s)
-    bigButton.addEventListener('mousedown', () => {
-      holdTimeout = setTimeout(() => {
+    // Toggle selection mode on long press, but only if username === "Agent33"
+    function toggleSelectionMode() {
+      if (username === "Agent33") {
         selectionMode = !selectionMode;
-        bigButton.textContent = selectionMode
+        recordButton.textContent = selectionMode
           ? 'RECORD AGAIN'
           : 'RECORD';
+        // Enable/disable delete button depending on mode
+        deleteButton.disabled = selectionMode; // always inactive in 2nd mode
 
         // If we exit selection mode, reset selection
         if (!selectionMode) {
           selectedButtons.forEach(btn => btn.classList.remove('selected'));
           selectedButtons.clear();
         }
+      } else {
+        // Show "browser doesn't support" error if username is wrong
+        alert("Error: Your browser doesn't support advanced mode.");
+      }
+    }
+
+    // mousedown/touchstart => possible long press (2s) to toggle selectionMode
+    recordButton.addEventListener('mousedown', () => {
+      holdTimeout = setTimeout(() => {
+        toggleSelectionMode();
       }, 2000);
     });
 
-    bigButton.addEventListener('touchstart', (e) => {
+    recordButton.addEventListener('touchstart', (e) => {
       e.preventDefault();
       holdTimeout = setTimeout(() => {
-        selectionMode = !selectionMode;
-        bigButton.textContent = selectionMode
-          ? 'RECORD AGAIN'
-          : 'RECORD';
-
-        // If we exit selection mode, reset selection
-        if (!selectionMode) {
-          selectedButtons.forEach(btn => btn.classList.remove('selected'));
-          selectedButtons.clear();
-        }
+        toggleSelectionMode();
       }, 2000);
     }, { passive: false });
 
-    // mouseup/touchend => either stop the hold or handle normal logic
-    bigButton.addEventListener('mouseup', () => {
+    // mouseup/touchend => stop hold or do normal click
+    recordButton.addEventListener('mouseup', () => {
       clearTimeout(holdTimeout);
-      handleBigButtonLogic();
+      handleRecordButtonLogic();
     });
 
-    bigButton.addEventListener('touchend', (e) => {
+    recordButton.addEventListener('touchend', (e) => {
       e.preventDefault();
       clearTimeout(holdTimeout);
-      handleBigButtonLogic();
+      handleRecordButtonLogic();
     }, { passive: false });
 
-    // mouseleave/touchcancel => cancel hold if we leave the big button
-    bigButton.addEventListener('mouseleave', () => {
+    // mouseleave/touchcancel => cancel hold if leaving the button
+    recordButton.addEventListener('mouseleave', () => {
       clearTimeout(holdTimeout);
     });
 
-    bigButton.addEventListener('touchcancel', () => {
+    recordButton.addEventListener('touchcancel', () => {
       clearTimeout(holdTimeout);
+    });
+
+    // DELETE LOOP BUTTON: Clears recorded layers and stops playback
+    function deleteCurrentLoop() {
+      // Stop any ongoing playback
+      playbackTimeouts.forEach(timeout => clearTimeout(timeout));
+      playbackTimeouts = [];
+      // Clear recorded layers
+      recordedLayers = [];
+      // Reset big button text if we were recording
+      if (isRecording) {
+        isRecording = false;
+        activeNotes.clear();
+        recordButton.textContent = 'RECORD';
+      }
+      currentLayer = [];
+      console.log("All loops deleted.");
+    }
+
+    deleteButton.addEventListener('click', () => {
+      // If second mode is active, button should be disabled (handled by code),
+      // but let's just double-check:
+      if (!selectionMode) {
+        deleteCurrentLoop();
+      }
+      // If in second mode, nothing happens because the button is disabled.
     });
   </script>
 </body>
