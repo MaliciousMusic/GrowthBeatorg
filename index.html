@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,16 +81,16 @@
     .green9 { background-color: #001a00; } 
 
     /* Yellow-to-Brown Gradient */
-    .ye0 { background-color: #ffffcc; }
+    .ye0 { background-color: #ffffcc; } /* Lightest yellow */
     .ye1 { background-color: #ffff99; }
     .ye2 { background-color: #ffcc66; }
-    .ye3 { background-color: #ff9933; }
+    .ye3 { background-color: #ff9933; } /* Orange */
     .ye4 { background-color: #ff6600; }
     .ye5 { background-color: #cc5200; }
     .ye6 { background-color: #993d00; }
     .ye7 { background-color: #662900; }
     .ye8 { background-color: #4d1f00; }
-    .ye9 { background-color: #331400; }
+    .ye9 { background-color: #331400; } /* Darkest brown */
 
     .cyan { background-color: #00cccc; }
     .pink { background-color: #ff66cc; }
@@ -104,9 +103,8 @@
     /* Big Button Container */
     .big-button-container {
       display: flex;
-      justify-content: center; /* Center horizontally */
+      justify-content: center; /* Center the button horizontally */
       align-items: center;
-      gap: 10px; /* spacing between record & delete buttons */
       height: 50px; /* Adjust height as needed */
       width: 100%; /* Full width */
     }
@@ -118,10 +116,9 @@
       color: #000;
       font-family: "Arial";
       font-size: 1.2rem;
-      width: 40%; /* or adjust as you prefer */
+      width: 100%; /* Take full width of container */
       cursor: pointer;
       transition: transform 0.2s, background-color 0.3s;
-      height: 40px;
     }
     .big-button:hover {
       background-color: #f0f0f0; /* Light gray hover effect */
@@ -144,52 +141,9 @@
       text-align: center;
       box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for styling */
     }
-
-    /* ====== MODAL FOR USERNAME ====== */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex; 
-      justify-content: center; 
-      align-items: center;
-      z-index: 999; 
-    }
-    .modal-window {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-    }
-    .modal-window h2 {
-      margin-top: 0;
-    }
-    .modal-window input {
-      padding: 8px;
-      font-size: 1rem;
-      margin-top: 10px;
-      display: block;
-      width: 100%;
-    }
-    .modal-window button {
-      margin-top: 10px;
-      padding: 8px 20px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
-  <!-- Modal for username -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal-window">
-      <h2>Enter Username</h2>
-      <input type="text" id="usernameInput" placeholder="Username" />
-      <button id="usernameSubmit">OK</button>
-    </div>
-  </div>
-
   <div class="main-flexbox">
 
     <!-- Première Rangée -->
@@ -269,8 +223,7 @@
     </div>
 
     <div class="big-button-container">
-      <button class="big-button" id="recordButton">R E C O R D</button>
-      <button class="big-button" id="deleteLoopButton">DELETE LOOP</button>
+      <button class="big-button">R E C O R D</button>
     </div>
 
     <footer class="footer">
@@ -278,49 +231,49 @@
     </footer>
 
   </div>
-  
+
   <script>
-    // === Audio Context ===
+    // --- Création du contexte audio ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // === MASTER BUS ===
-    const masterGain = audioCtx.createGain();
-    masterGain.connect(audioCtx.destination);
+    // --- Variables d'état globales ---
+    let isRecording = false;                // Indique si l'enregistrement est en cours
+    let recordedLayers = [];               // Tableau contenant toutes les couches (layers) enregistrées
+    let currentLayer = [];                 // Tableau temporaire pour la couche en cours d'enregistrement
+    let playbackTimeouts = [];             // Tableau des ID de timeout pour la lecture en boucle
 
-    // === Global State ===
-    let isRecording = false;
-    let recordedLayers = [];     // All recorded layers
-    let currentLayer = [];       // Currently recording layer
-    let playbackTimeouts = [];   // For loop playback timeouts
-    let activeNotes = new Map(); // Track notes that start during recording
-    const activeOscillators = new Map(); // For continuous press
+    // Map for notes that start during recording
+    let activeNotes = new Map();
 
-    // For selection mode
-    let selectionMode = false;
-    let selectedButtons = new Set();
+    // Map for active oscillators (one per button) to properly stop each.
+    const activeOscillators = new Map();
 
-    // If user typed "Agent33", we allow toggling to selectionMode
-    let canUseSelectionMode = false;
+    let selectionMode = false;             // Mode sélection
+    let selectedButtons = new Set();       // Ensemble des boutons actuellement sélectionnés
+    let holdTimeout;                       // ID du timeout pour le passage en mode sélection après un appui long
 
-    // ========== 1) FUN SOUNDS (same as your original custom functions) =========
-    // Kick (808-ish)
+    //===========================
+    //    NEW SOUND FUNCTIONS
+    //===========================
+    // 1) 808-like Bass
     function play808Sound(frequency) {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
 
       osc.type = "sine";
+      // Start low for that 808 rumble; you can tweak to taste
       osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
 
       gain.gain.setValueAtTime(1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
 
-      osc.connect(gain).connect(masterGain);
+      osc.connect(gain).connect(audioCtx.destination);
 
       osc.start(audioCtx.currentTime);
       osc.stop(audioCtx.currentTime + 1);
     }
 
-    // Distortion + Spectral (Space)
+    // 2) Distortion + Spectral (Space)
     function playDistortionSpectralSpace(frequency) {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -330,6 +283,7 @@
       osc.type = 'triangle';
       osc.frequency.value = frequency;
 
+      // Simple distortion curve
       waveShaper.curve = new Float32Array([1, 0.5, -0.5, 0]);
       waveShaper.oversample = '4x';
 
@@ -337,15 +291,16 @@
       filter.frequency.value = frequency * 2;
       filter.Q.value = 50;
 
+      // Sharper attack, shorter duration
       gain.gain.setValueAtTime(1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
 
-      osc.connect(waveShaper).connect(filter).connect(gain).connect(masterGain);
+      osc.connect(waveShaper).connect(filter).connect(gain).connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.5);
     }
 
-    // Choir
+    // 3) Choir
     function playChoir(frequency) {
       const osc = audioCtx.createOscillator();
       const formantFilter = audioCtx.createBiquadFilter();
@@ -354,19 +309,21 @@
       osc.type = 'sine';
       osc.frequency.value = frequency;
 
+      // Basic choir formant
       formantFilter.type = 'bandpass';
       formantFilter.frequency.value = 800;
       formantFilter.Q.value = 10;
 
+      // Volume envelope
       gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
 
-      osc.connect(formantFilter).connect(gain).connect(masterGain);
+      osc.connect(formantFilter).connect(gain).connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + 2);
     }
 
-    // Snare
+    // 4) Synth1: Warm Pad with Detune
     function playSynth1(frequency) {
       const osc1 = audioCtx.createOscillator();
       const osc2 = audioCtx.createOscillator();
@@ -374,13 +331,15 @@
 
       osc1.type = 'sawtooth';
       osc1.frequency.value = frequency;
+
+      // Slight detune
       osc2.type = 'sawtooth';
       osc2.frequency.value = frequency * 1.01;
 
       gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
 
-      osc1.connect(gain).connect(masterGain);
+      osc1.connect(gain).connect(audioCtx.destination);
       osc2.connect(gain);
 
       osc1.start();
@@ -389,7 +348,7 @@
       osc2.stop(audioCtx.currentTime + 2);
     }
 
-    // Hihat
+    // 5) Synth4: Atmospheric Choir
     function playSynth4(frequency) {
       const osc1 = audioCtx.createOscillator();
       const osc2 = audioCtx.createOscillator();
@@ -397,13 +356,14 @@
 
       osc1.type = 'sine';
       osc1.frequency.value = frequency;
+
       osc2.type = 'sine';
       osc2.frequency.value = frequency * 1.5;
 
       gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
 
-      osc1.connect(gain).connect(masterGain);
+      osc1.connect(gain).connect(audioCtx.destination);
       osc2.connect(gain);
 
       osc1.start();
@@ -412,7 +372,7 @@
       osc2.stop(audioCtx.currentTime + 2);
     }
 
-    // Bass
+    // 6) Synth6: Resonant Strings
     function playSynth6(frequency) {
       const osc1 = audioCtx.createOscillator();
       const osc2 = audioCtx.createOscillator();
@@ -424,6 +384,7 @@
       osc2.type = 'triangle';
       osc2.frequency.value = frequency * 0.99;
 
+      // Band-pass for string timbre
       filter.type = 'bandpass';
       filter.frequency.value = frequency;
       filter.Q.value = 12;
@@ -431,7 +392,7 @@
       gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
 
-      osc1.connect(filter).connect(gain).connect(masterGain);
+      osc1.connect(filter).connect(gain).connect(audioCtx.destination);
       osc2.connect(filter);
 
       osc1.start();
@@ -440,7 +401,7 @@
       osc2.stop(audioCtx.currentTime + 2);
     }
 
-    // === Decide Which Sound to Play Based on Column
+    // === Play function based on column data-sound ===
     function playColumnSoundStart(column, frequency) {
       const soundType = column.getAttribute('data-sound');
       switch (soundType) {
@@ -463,15 +424,17 @@
           playSynth6(frequency);
           break;
         default:
+          // Fallback (could also use any other effect you want)
           playChoir(frequency);
           break;
       }
     }
 
-    // === Scheduling Playback of Recorded Notes
+    // A specialized function to schedule note playback
     function scheduleNotePlayback(column, frequency, offset, duration) {
       const soundType = column.getAttribute('data-sound');
-      // For short or one-shot sounds:
+
+      // If it's one of our "short" or "one-shot" sounds, schedule directly:
       if (
         soundType === 'kick' ||
         soundType === 'distortion' ||
@@ -483,9 +446,10 @@
         const startTimeout = setTimeout(() => {
           playColumnSoundStart(column, frequency);
         }, offset);
+
         playbackTimeouts.push(startTimeout);
       } else {
-        // Fallback for continuous oscillator approach
+        // Else fallback to the older continuous oscillator approach
         const startTimeout = setTimeout(() => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -494,7 +458,7 @@
           osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
           gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
 
-          osc.connect(gain).connect(masterGain);
+          osc.connect(gain).connect(audioCtx.destination);
           osc.start();
 
           const stopTimeout = setTimeout(() => {
@@ -507,25 +471,26 @@
       }
     }
 
-    // === Playback All Layers in a Loop ===
+    // Relecture de toutes les couches enregistrées en boucle
     function playRecordedLayers() {
-      // Clear old timeouts
+      // Nettoie les anciens timeouts
       playbackTimeouts.forEach(timeout => clearTimeout(timeout));
       playbackTimeouts = [];
 
       if (!recordedLayers.length) return;
 
-      // Find max duration among all layers
+      // Calcule la durée max pour savoir quand relancer la boucle
       const maxDuration = Math.max(
         ...recordedLayers.flatMap(layer =>
           layer.map(entry => (entry.startTime + entry.duration) - layer[0].startTime)
         )
       );
 
-      // Schedule each layer’s events
+      // Planifie la lecture de chaque layer
       recordedLayers.forEach(layer => {
-        const layerStart = layer[0].startTime;
+        const layerStart = layer[0].startTime; // first note's start time
         layer.forEach(entry => {
+          // offset from earliest note in this layer
           const offset = entry.startTime - layerStart;
           scheduleNotePlayback(
             entry.column,
@@ -536,50 +501,115 @@
         });
       });
 
-      // Loop again after max duration
+      // Relance la boucle après la durée max + 500ms
       const loopTimeout = setTimeout(playRecordedLayers, maxDuration + 500);
       playbackTimeouts.push(loopTimeout);
     }
 
-    // === Buttons Setup ===
+    // --- Double-tap zoom prevention while allowing scroll ---
+    let lastTouchEnd = 0;
+    document.addEventListener(
+      'touchstart',
+      (event) => {
+        // If more than one finger, prevent default to avoid pinch-zoom
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      },
+      { passive: false }
+    );
+
+    document.addEventListener(
+      'touchend',
+      (event) => {
+        const now = new Date().getTime();
+        // If double-tap in under 300ms, prevent zoom
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      },
+      { passive: false }
+    );
+
+    // Récupère les boutons
     const buttons = document.querySelectorAll('.button');
+
+    // --- Touch and Click events for each button ---
     buttons.forEach(button => {
       const column = button.closest('.column');
 
-      // Single tap or click => either select (if in selection mode) or play sound
+      // Common logic for button selection or playback
       function handleButtonSelection() {
         if (selectionMode) {
-          // Toggle selection for selection mode
-          if (!button.classList.contains('selected')) {
-            button.classList.add('selected');
-            selectedButtons.add(button);
+          // In selection mode, highlight or unhighlight
+          const allColumns = Array.from(document.querySelectorAll('.column'));
+          const columnIndex = allColumns.indexOf(column);
+
+          // Example selection rule: if column is 1 or 5, allow up to 2 selections
+          if (columnIndex === 1 || columnIndex === 5) {
+            const buttonsInThisColumn = column.querySelectorAll('.button');
+            const alreadySelected = Array.from(buttonsInThisColumn)
+              .filter(b => b.classList.contains('selected'));
+
+            if (button.classList.contains('selected')) {
+              // Deselect if clicked/touched again
+              button.classList.remove('selected');
+              selectedButtons.delete(button);
+            } else {
+              // Not selected yet
+              if (alreadySelected.length < 2) {
+                button.classList.add('selected');
+                selectedButtons.add(button);
+              } else {
+                // Already have 2 => remove them
+                for (const b of alreadySelected) {
+                  b.classList.remove('selected');
+                  selectedButtons.delete(b);
+                }
+                // Select the new one
+                button.classList.add('selected');
+                selectedButtons.add(button);
+              }
+            }
           } else {
-            button.classList.remove('selected');
-            selectedButtons.delete(button);
+            // Single selection columns
+            const buttonsInColumn = column.querySelectorAll('.button');
+            buttonsInColumn.forEach(btn => {
+              btn.classList.remove('selected');
+              selectedButtons.delete(btn);
+            });
+            if (!button.classList.contains('selected')) {
+              button.classList.add('selected');
+              selectedButtons.add(button);
+            } else {
+              button.classList.remove('selected');
+              selectedButtons.delete(button);
+            }
           }
-          // No modulator logic anymore; just do selection
         } else {
-          // Normal/record mode => quick “one-shot” sound
+          // Normal (recording) mode => one-shot trigger
           const frequency = parseFloat(button.getAttribute('data-frequency'));
           playColumnSoundStart(column, frequency);
         }
       }
 
-      // Touchstart => possibly start continuous oscillator (if not in selection mode)
+      // Handle touchstart for *continuous* press (osc on) in record mode
       button.addEventListener('touchstart', e => {
+        e.preventDefault();
+
         if (!selectionMode) {
-          e.preventDefault();
           const frequency = parseFloat(button.getAttribute('data-frequency'));
           const osc = audioCtx.createOscillator();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-          osc.connect(masterGain);
+          osc.connect(audioCtx.destination);
           osc.start();
 
-          // Remember for stopping later
+          // Store oscillator for this button
           activeOscillators.set(button, osc);
 
-          // If we're recording, start note
+          // If we're recording, start recording the note
           if (isRecording) {
             activeNotes.set(button, {
               column,
@@ -589,11 +619,13 @@
             });
           }
         }
-      }, { passive: false });
+      });
 
-      // Touchend => stop continuous oscillator
+      // Handle touchend for *continuous* press
       button.addEventListener('touchend', e => {
         e.preventDefault();
+
+        // Stop the oscillator
         const osc = activeOscillators.get(button);
         if (osc) {
           osc.stop();
@@ -601,47 +633,60 @@
           activeOscillators.delete(button);
         }
 
-        // finalize note if recording
+        // Finalize note recording
         if (isRecording && activeNotes.has(button)) {
           const noteObj = activeNotes.get(button);
-          noteObj.duration = performance.now() - noteObj.startTime;
+          const endTime = performance.now();
+          noteObj.duration = endTime - noteObj.startTime;
           currentLayer.push(noteObj);
           activeNotes.delete(button);
         }
-      }, { passive: false });
+      });
 
-      // Touchcancel => stop
+      // Handle touchcancel for safety
       button.addEventListener('touchcancel', e => {
         e.preventDefault();
+
+        // Stop the oscillator
         const osc = activeOscillators.get(button);
         if (osc) {
           osc.stop();
           osc.disconnect();
           activeOscillators.delete(button);
         }
+
+        // Finalize note recording if needed
         if (isRecording && activeNotes.has(button)) {
           const noteObj = activeNotes.get(button);
-          noteObj.duration = performance.now() - noteObj.startTime;
+          const endTime = performance.now();
+          noteObj.duration = endTime - noteObj.startTime;
           currentLayer.push(noteObj);
           activeNotes.delete(button);
         }
-      }, { passive: false });
+      });
 
-      // Desktop click => same selection logic
+      // Click for selection or immediate playback
       button.addEventListener('click', handleButtonSelection);
+
+      // Add a second touchstart for selection logic (prevent default properly)
+      button.addEventListener('touchstart', e => {
+        e.preventDefault();
+        handleButtonSelection();
+      }, { passive: false });
     });
 
-    // === RECORD & DELETE LOOP BUTTONS ===
-    const recordButton = document.getElementById('recordButton');
-    const deleteLoopButton = document.getElementById('deleteLoopButton');
 
-    function handleRecordButtonClick() {
-      // If not in selection mode => handle normal record logic
+    // Big button to start/stop recording or handle selection
+    const bigButton = document.querySelector('.big-button');
+
+    // Common function to handle big button logic
+    function handleBigButtonLogic() {
       if (!selectionMode) {
+        // RECORDING LOGIC
         if (isRecording) {
           // Stop recording
           isRecording = false;
-          // End any active notes
+          // Finalize all active notes
           activeNotes.forEach((noteObj, btn) => {
             noteObj.duration = performance.now() - noteObj.startTime;
             currentLayer.push(noteObj);
@@ -651,146 +696,90 @@
           if (currentLayer.length) {
             recordedLayers.push(currentLayer);
           }
-          currentLayer = [];
+          bigButton.textContent = 'RECORD';
 
-          recordButton.textContent = 'RECORD';
-
-          // Start loop playback if we have layers
+          // Playback if we have layers recorded
           if (recordedLayers.length > 0) {
             playRecordedLayers();
           }
         } else {
           // Start recording
           isRecording = true;
-          // Stop any loop playback
-          playbackTimeouts.forEach(timeout => clearTimeout(timeout));
-          playbackTimeouts = [];
           currentLayer = [];
-          recordButton.textContent = 'STOP RECORDING';
+          bigButton.textContent = 'STOP RECORDING';
         }
       } else {
-        // If in selection mode, do a quick visual feedback
-        recordButton.style.color = 'green';
+        // SELECTION MODE: SEND DATA
+        const selectedData = Array.from(selectedButtons).map(button => ({
+          frequency: button.getAttribute('data-frequency'),
+          color: getComputedStyle(button).backgroundColor
+        }));
+        console.log('Selected Data Sent:', selectedData);
+
+        // Unselect all after sending the data
+        selectedButtons.forEach(btn => btn.classList.remove('selected'));
+        selectedButtons.clear();
+
+        // Simple confirmation visual
+        bigButton.style.color = 'green';
         setTimeout(() => {
-          recordButton.style.color = '';
-        }, 800);
+          bigButton.style.color = '';
+        }, 1000);
       }
     }
 
-    // Long press logic for toggling selection mode
-    let holdTimeout = null;
-    recordButton.addEventListener('mousedown', () => {
+    // mousedown/touchstart => possible long press to toggle selectionMode (2s)
+    bigButton.addEventListener('mousedown', () => {
       holdTimeout = setTimeout(() => {
-        // Only allow selection mode if user typed "Agent33"
-        if (!canUseSelectionMode) {
-          alert("ERROR // The sequencer isn't available on your browser.");
-          return;
-        }
         selectionMode = !selectionMode;
-        recordButton.textContent = selectionMode ? 'RECORD AGAIN' : 'RECORD';
+        bigButton.textContent = selectionMode
+          ? 'RECORD AGAIN'
+          : 'RECORD';
+
+        // If we exit selection mode, reset selection
         if (!selectionMode) {
-          // Leaving mode 2 => clear selections
           selectedButtons.forEach(btn => btn.classList.remove('selected'));
           selectedButtons.clear();
         }
       }, 2000);
     });
 
-    recordButton.addEventListener('touchstart', (e) => {
+    bigButton.addEventListener('touchstart', (e) => {
       e.preventDefault();
       holdTimeout = setTimeout(() => {
-        if (!canUseSelectionMode) {
-          alert("ERROR // The sequencer isn't available on your browser.");
-          return;
-        }
         selectionMode = !selectionMode;
-        recordButton.textContent = selectionMode ? 'RECORD AGAIN' : 'RECORD';
+        bigButton.textContent = selectionMode
+          ? 'RECORD AGAIN'
+          : 'RECORD';
+
+        // If we exit selection mode, reset selection
         if (!selectionMode) {
-          // Leaving mode 2 => clear selections
           selectedButtons.forEach(btn => btn.classList.remove('selected'));
           selectedButtons.clear();
         }
       }, 2000);
     }, { passive: false });
 
-    recordButton.addEventListener('mouseup', () => {
+    // mouseup/touchend => either stop the hold or handle normal logic
+    bigButton.addEventListener('mouseup', () => {
       clearTimeout(holdTimeout);
-      handleRecordButtonClick();
+      handleBigButtonLogic();
     });
-    recordButton.addEventListener('mouseleave', () => {
-      clearTimeout(holdTimeout);
-    });
-    recordButton.addEventListener('touchend', (e) => {
+
+    bigButton.addEventListener('touchend', (e) => {
       e.preventDefault();
       clearTimeout(holdTimeout);
-      handleRecordButtonClick();
+      handleBigButtonLogic();
     }, { passive: false });
-    recordButton.addEventListener('touchcancel', () => {
+
+    // mouseleave/touchcancel => cancel hold if we leave the big button
+    bigButton.addEventListener('mouseleave', () => {
       clearTimeout(holdTimeout);
     });
 
-    // DELETE LOOP => do nothing if in mode 2
-    deleteLoopButton.addEventListener('click', () => {
-      if (selectionMode) {
-        // If in mode 2, ignore DELETE LOOP
-        return;
-      }
-      // Otherwise, clear loops and reset record
-      playbackTimeouts.forEach(timeout => clearTimeout(timeout));
-      playbackTimeouts = [];
-      recordedLayers = [];
-      currentLayer = [];
-      isRecording = false;
-      recordButton.textContent = 'RECORD';
+    bigButton.addEventListener('touchcancel', () => {
+      clearTimeout(holdTimeout);
     });
-
-    // === USERNAME POP-UP & LOCALSTORAGE “DB” EXAMPLE ===
-    const modalOverlay = document.getElementById("modalOverlay");
-    const usernameInput = document.getElementById("usernameInput");
-    const usernameSubmit = document.getElementById("usernameSubmit");
-
-    window.addEventListener('load', () => {
-      modalOverlay.style.display = 'flex';
-    });
-
-    usernameSubmit.addEventListener('click', () => {
-      const userName = usernameInput.value.trim();
-      if (!userName) return;
-
-      // store in localStorage
-      localStorage.setItem('username', userName);
-
-      // If user typed Agent33 => unlock selection mode toggling
-      if (userName === 'Agent33') {
-        canUseSelectionMode = true;
-      }
-
-      // Hide modal
-      modalOverlay.style.display = 'none';
-    });
-
-    // === Double-tap Zoom Prevention (Mobile) ===
-    let lastTouchEnd = 0;
-    document.addEventListener(
-      'touchstart',
-      (event) => {
-        if (event.touches.length > 1) {
-          event.preventDefault();
-        }
-      },
-      { passive: false }
-    );
-    document.addEventListener(
-      'touchend',
-      (event) => {
-        const now = new Date().getTime();
-        if (now - lastTouchEnd <= 300) {
-          event.preventDefault();
-        }
-        lastTouchEnd = now;
-      },
-      { passive: false }
-    );
   </script>
 </body>
 </html>
