@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -277,26 +278,14 @@
     </footer>
 
   </div>
-
+  
   <script>
     // === Audio Context ===
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     // === MASTER BUS ===
-    // We'll route all sound through masterGain,
-    // so we can later insert a filter or other FX for "modulation."
     const masterGain = audioCtx.createGain();
     masterGain.connect(audioCtx.destination);
-
-    // === Simple filter effect that we can enable for "selected mode" fun
-    let modulatorFilter = audioCtx.createBiquadFilter();
-    modulatorFilter.type = 'lowpass';
-    modulatorFilter.frequency.value = 22050; // effectively no filter if set high
-    // We'll connect it only when needed
-    let isFilterActive = false;
-
-    // LFO references
-    let lfoOscillators = [];
 
     // === Global State ===
     let isRecording = false;
@@ -309,14 +298,11 @@
     // For selection mode
     let selectionMode = false;
     let selectedButtons = new Set();
-    let holdTimeout = null;
 
-    // If user typed "Agent33", we allow selection mode
-    let canUseSelectionMode = false; 
+    // If user typed "Agent33", we allow toggling to selectionMode
+    let canUseSelectionMode = false;
 
-    // ========== 1) FUN SOUNDS =============
-    //  (Same as your original custom functions)
-
+    // ========== 1) FUN SOUNDS (same as your original custom functions) =========
     // Kick (808-ish)
     function play808Sound(frequency) {
       const osc = audioCtx.createOscillator();
@@ -328,7 +314,6 @@
       gain.gain.setValueAtTime(1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
 
-      // route to masterGain
       osc.connect(gain).connect(masterGain);
 
       osc.start(audioCtx.currentTime);
@@ -381,7 +366,7 @@
       osc.stop(audioCtx.currentTime + 2);
     }
 
-    // Synth1: Warm Pad
+    // Snare
     function playSynth1(frequency) {
       const osc1 = audioCtx.createOscillator();
       const osc2 = audioCtx.createOscillator();
@@ -404,7 +389,7 @@
       osc2.stop(audioCtx.currentTime + 2);
     }
 
-    // Synth4: Atmospheric Choir
+    // Hihat
     function playSynth4(frequency) {
       const osc1 = audioCtx.createOscillator();
       const osc2 = audioCtx.createOscillator();
@@ -427,7 +412,7 @@
       osc2.stop(audioCtx.currentTime + 2);
     }
 
-    // Synth6: Resonant Strings
+    // Bass
     function playSynth6(frequency) {
       const osc1 = audioCtx.createOscillator();
       const osc2 = audioCtx.createOscillator();
@@ -486,7 +471,7 @@
     // === Scheduling Playback of Recorded Notes
     function scheduleNotePlayback(column, frequency, offset, duration) {
       const soundType = column.getAttribute('data-sound');
-      // Short or one-shot sounds
+      // For short or one-shot sounds:
       if (
         soundType === 'kick' ||
         soundType === 'distortion' ||
@@ -500,7 +485,7 @@
         }, offset);
         playbackTimeouts.push(startTimeout);
       } else {
-        // Fallback: continuous oscillator approach
+        // Fallback for continuous oscillator approach
         const startTimeout = setTimeout(() => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -551,110 +536,107 @@
         });
       });
 
-      // Repeat
+      // Loop again after max duration
       const loopTimeout = setTimeout(playRecordedLayers, maxDuration + 500);
       playbackTimeouts.push(loopTimeout);
     }
 
     // === Buttons Setup ===
-const buttons = document.querySelectorAll('.button');
-buttons.forEach(button => {
-  const column = button.closest('.column');
+    const buttons = document.querySelectorAll('.button');
+    buttons.forEach(button => {
+      const column = button.closest('.column');
 
-  // Single tap or click => either select (if in selection mode) or play sound
-  function handleButtonSelection() {
-    if (selectionMode) {
-      // Toggle selection for selection mode
-      if (!button.classList.contains('selected')) {
-        button.classList.add('selected');
-        selectedButtons.add(button);
-      } else {
-        button.classList.remove('selected');
-        selectedButtons.delete(button);
+      // Single tap or click => either select (if in selection mode) or play sound
+      function handleButtonSelection() {
+        if (selectionMode) {
+          // Toggle selection for selection mode
+          if (!button.classList.contains('selected')) {
+            button.classList.add('selected');
+            selectedButtons.add(button);
+          } else {
+            button.classList.remove('selected');
+            selectedButtons.delete(button);
+          }
+          // No modulator logic anymore; just do selection
+        } else {
+          // Normal/record mode => quick “one-shot” sound
+          const frequency = parseFloat(button.getAttribute('data-frequency'));
+          playColumnSoundStart(column, frequency);
+        }
       }
-      updateModulatorEffects();
-    } else {
-      // Normal record mode => quick “one-shot” sound
-      const frequency = parseFloat(button.getAttribute('data-frequency'));
-      playColumnSoundStart(column, frequency);
-    }
-  }
 
-  // Touchstart => possibly start continuous oscillator (if not in selection mode)
-  button.addEventListener('touchstart', e => {
-    // FIX #1: Only prevent default if NOT in selection mode
-    if (!selectionMode) {
-      e.preventDefault();
+      // Touchstart => possibly start continuous oscillator (if not in selection mode)
+      button.addEventListener('touchstart', e => {
+        if (!selectionMode) {
+          e.preventDefault();
+          const frequency = parseFloat(button.getAttribute('data-frequency'));
+          const osc = audioCtx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+          osc.connect(masterGain);
+          osc.start();
 
-      const frequency = parseFloat(button.getAttribute('data-frequency'));
-      const osc = audioCtx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-      osc.connect(masterGain);
-      osc.start();
+          // Remember for stopping later
+          activeOscillators.set(button, osc);
 
-      // Remember this oscillator so we can stop it later
-      activeOscillators.set(button, osc);
+          // If we're recording, start note
+          if (isRecording) {
+            activeNotes.set(button, {
+              column,
+              frequency,
+              startTime: performance.now(),
+              duration: 0
+            });
+          }
+        }
+      }, { passive: false });
 
-      // If we're recording, start note
-      if (isRecording) {
-        activeNotes.set(button, {
-          column,
-          frequency,
-          startTime: performance.now(),
-          duration: 0
-        });
-      }
-    }
-  }, { passive: false });
+      // Touchend => stop continuous oscillator
+      button.addEventListener('touchend', e => {
+        e.preventDefault();
+        const osc = activeOscillators.get(button);
+        if (osc) {
+          osc.stop();
+          osc.disconnect();
+          activeOscillators.delete(button);
+        }
 
-  // Touchend => stop continuous oscillator
-  button.addEventListener('touchend', e => {
-    e.preventDefault();
-    const osc = activeOscillators.get(button);
-    if (osc) {
-      osc.stop();
-      osc.disconnect();
-      activeOscillators.delete(button);
-    }
+        // finalize note if recording
+        if (isRecording && activeNotes.has(button)) {
+          const noteObj = activeNotes.get(button);
+          noteObj.duration = performance.now() - noteObj.startTime;
+          currentLayer.push(noteObj);
+          activeNotes.delete(button);
+        }
+      }, { passive: false });
 
-    // finalize note
-    if (isRecording && activeNotes.has(button)) {
-      const noteObj = activeNotes.get(button);
-      noteObj.duration = performance.now() - noteObj.startTime;
-      currentLayer.push(noteObj);
-      activeNotes.delete(button);
-    }
-  }, { passive: false });
+      // Touchcancel => stop
+      button.addEventListener('touchcancel', e => {
+        e.preventDefault();
+        const osc = activeOscillators.get(button);
+        if (osc) {
+          osc.stop();
+          osc.disconnect();
+          activeOscillators.delete(button);
+        }
+        if (isRecording && activeNotes.has(button)) {
+          const noteObj = activeNotes.get(button);
+          noteObj.duration = performance.now() - noteObj.startTime;
+          currentLayer.push(noteObj);
+          activeNotes.delete(button);
+        }
+      }, { passive: false });
 
-  // Touchcancel => stop
-  button.addEventListener('touchcancel', e => {
-    e.preventDefault();
-    const osc = activeOscillators.get(button);
-    if (osc) {
-      osc.stop();
-      osc.disconnect();
-      activeOscillators.delete(button);
-    }
-    if (isRecording && activeNotes.has(button)) {
-      const noteObj = activeNotes.get(button);
-      noteObj.duration = performance.now() - noteObj.startTime;
-      currentLayer.push(noteObj);
-      activeNotes.delete(button);
-    }
-  }, { passive: false });
-
-  // Desktop click => same selection logic
-  button.addEventListener('click', handleButtonSelection);
-});
-
+      // Desktop click => same selection logic
+      button.addEventListener('click', handleButtonSelection);
+    });
 
     // === RECORD & DELETE LOOP BUTTONS ===
     const recordButton = document.getElementById('recordButton');
     const deleteLoopButton = document.getElementById('deleteLoopButton');
 
     function handleRecordButtonClick() {
-      // If not in selection mode => handle recording logic
+      // If not in selection mode => handle normal record logic
       if (!selectionMode) {
         if (isRecording) {
           // Stop recording
@@ -673,23 +655,21 @@ buttons.forEach(button => {
 
           recordButton.textContent = 'RECORD';
 
-          // Start loop playback
+          // Start loop playback if we have layers
           if (recordedLayers.length > 0) {
             playRecordedLayers();
           }
         } else {
           // Start recording
           isRecording = true;
-          // Clear timeouts if any loop was playing
+          // Stop any loop playback
           playbackTimeouts.forEach(timeout => clearTimeout(timeout));
           playbackTimeouts = [];
           currentLayer = [];
           recordButton.textContent = 'STOP RECORDING';
         }
       } else {
-        // If in selection mode, we could do something else,
-        // e.g. finalize selection or apply some UI feedback.
-        // For now, just do a quick visual feedback:
+        // If in selection mode, do a quick visual feedback
         recordButton.style.color = 'green';
         setTimeout(() => {
           recordButton.style.color = '';
@@ -697,25 +677,24 @@ buttons.forEach(button => {
       }
     }
 
-    // Long-press logic to toggle selection mode
+    // Long press logic for toggling selection mode
+    let holdTimeout = null;
     recordButton.addEventListener('mousedown', () => {
-  holdTimeout = setTimeout(() => {
-    // ...
-    selectionMode = !selectionMode;
-    recordButton.textContent = selectionMode ? 'RECORD AGAIN' : 'RECORD';
-
-    if (!selectionMode) {
-      // FIX #2: leaving selection mode => stop recording
-      isRecording = false; 
-      recordButton.textContent = 'RECORD';
-
-      selectedButtons.forEach(btn => btn.classList.remove('selected'));
-      selectedButtons.clear();
-      updateModulatorEffects();
-    }
-  }, 2000);
-});
-
+      holdTimeout = setTimeout(() => {
+        // Only allow selection mode if user typed "Agent33"
+        if (!canUseSelectionMode) {
+          alert("ERROR // The sequencer isn't available on your browser.");
+          return;
+        }
+        selectionMode = !selectionMode;
+        recordButton.textContent = selectionMode ? 'RECORD AGAIN' : 'RECORD';
+        if (!selectionMode) {
+          // Leaving mode 2 => clear selections
+          selectedButtons.forEach(btn => btn.classList.remove('selected'));
+          selectedButtons.clear();
+        }
+      }, 2000);
+    });
 
     recordButton.addEventListener('touchstart', (e) => {
       e.preventDefault();
@@ -727,9 +706,9 @@ buttons.forEach(button => {
         selectionMode = !selectionMode;
         recordButton.textContent = selectionMode ? 'RECORD AGAIN' : 'RECORD';
         if (!selectionMode) {
+          // Leaving mode 2 => clear selections
           selectedButtons.forEach(btn => btn.classList.remove('selected'));
           selectedButtons.clear();
-          updateModulatorEffects();
         }
       }, 2000);
     }, { passive: false });
@@ -750,98 +729,26 @@ buttons.forEach(button => {
       clearTimeout(holdTimeout);
     });
 
-    // DELETE LOOP => Clear recordedLayers, stop all playback
+    // DELETE LOOP => do nothing if in mode 2
     deleteLoopButton.addEventListener('click', () => {
-      // stop any loops
+      if (selectionMode) {
+        // If in mode 2, ignore DELETE LOOP
+        return;
+      }
+      // Otherwise, clear loops and reset record
       playbackTimeouts.forEach(timeout => clearTimeout(timeout));
       playbackTimeouts = [];
-      // clear data
       recordedLayers = [];
       currentLayer = [];
-      // reset button text if we were in the middle of rec
       isRecording = false;
       recordButton.textContent = 'RECORD';
     });
-
-    // === MODULATION EFFECTS WHEN IN SELECTION MODE ===
-    // For demonstration: We create a lowpass filter + LFO for each selected button
-    // The LFO changes the filter frequency in a range to produce interesting movement
-    function updateModulatorEffects() {
-      // If we are not in selection mode or no selected buttons => bypass
-      if (!selectionMode || selectedButtons.size === 0) {
-        // Disconnect if filter is active
-        if (isFilterActive) {
-          masterGain.disconnect();
-          modulatorFilter.disconnect();
-          masterGain.connect(audioCtx.destination);
-          isFilterActive = false;
-        }
-        // Stop any LFOs
-        lfoOscillators.forEach(osc => {
-          osc.stop();
-          osc.disconnect();
-        });
-        lfoOscillators = [];
-        return;
-      }
-
-      // Otherwise, connect the filter if not already
-      if (!isFilterActive) {
-        masterGain.disconnect();
-        masterGain.connect(modulatorFilter).connect(audioCtx.destination);
-        isFilterActive = true;
-      }
-
-      // Stop old LFOs
-      lfoOscillators.forEach(osc => {
-        osc.stop();
-        osc.disconnect();
-      });
-      lfoOscillators = [];
-
-      // For each selected button => create an LFO that affects modulatorFilter.frequency
-      // Summation approach: we'll vary the filter around some base by sum of LFOs
-      // A simpler approach is to pick one LFO based on last button, but let's do them all:
-      let baseFreq = 500; // a moderate cutoff
-      let totalOffset = 0; 
-
-      selectedButtons.forEach(btn => {
-        const freqVal = parseFloat(btn.getAttribute('data-frequency')) || 100;
-        // We'll interpret freqVal as the LFO's speed *or amplitude
-        const lfo = audioCtx.createOscillator();
-        const lfoGain = audioCtx.createGain();
-
-        // LFO oscillator
-        lfo.type = 'sine';
-        lfo.frequency.value = freqVal / 50; // scale down for a more interesting speed
-
-        // amplitude of the LFO
-        lfoGain.gain.value = 200; // range of +/- 200 around base freq
-
-        lfo.connect(lfoGain);
-
-        // We'll connect it to modulatorFilter.frequency via setTargetAtTime
-        lfoGain.connect(modulatorFilter.frequency);
-
-        lfo.start();
-        lfoOscillators.push(lfo);
-
-        // We also sum up an offset
-        totalOffset += freqVal;
-      });
-
-      // We set an initial "base" frequency to something that depends on the number of selected buttons
-      const averageOffset = totalOffset / selectedButtons.size;
-      modulatorFilter.frequency.value = baseFreq + averageOffset;
-    }
 
     // === USERNAME POP-UP & LOCALSTORAGE “DB” EXAMPLE ===
     const modalOverlay = document.getElementById("modalOverlay");
     const usernameInput = document.getElementById("usernameInput");
     const usernameSubmit = document.getElementById("usernameSubmit");
 
-    // On page load, show modal (simple example)
-    // If you want to skip showing if already stored in localStorage, you can do that logic.
     window.addEventListener('load', () => {
       modalOverlay.style.display = 'flex';
     });
@@ -850,10 +757,10 @@ buttons.forEach(button => {
       const userName = usernameInput.value.trim();
       if (!userName) return;
 
-      // “Database” store in localStorage
+      // store in localStorage
       localStorage.setItem('username', userName);
 
-      // If user typed Agent33 => unlock selection mode
+      // If user typed Agent33 => unlock selection mode toggling
       if (userName === 'Agent33') {
         canUseSelectionMode = true;
       }
@@ -884,7 +791,6 @@ buttons.forEach(button => {
       },
       { passive: false }
     );
-
   </script>
 </body>
 </html>
