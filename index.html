@@ -783,31 +783,41 @@
       clearTimeout(holdTimeout);
     });
 
-    // DELETE LOOP BUTTON: Clears recorded layers and stops playback
-    function deleteCurrentLoop() {
-      // Stop any ongoing playback
-      playbackTimeouts.forEach(timeout => clearTimeout(timeout));
-      playbackTimeouts = [];
-      // Clear recorded layers
-      recordedLayers = [];
-      // Reset big button text if we were recording
-      if (isRecording) {
-        isRecording = false;
-        activeNotes.clear();
-        recordButton.textContent = 'RECORD';
-      }
-      currentLayer = [];
-      console.log("All loops deleted.");
+    /// DELETE LOOP BUTTON: Clears recorded layers and stops playback
+  function deleteCurrentLoop() {
+    // Stop any ongoing playback
+    playbackTimeouts.forEach(timeout => clearTimeout(timeout));
+    playbackTimeouts = [];
+    // Clear recorded layers
+    recordedLayers = [];
+    // Reset big button text if we were recording
+    if (isRecording) {
+      isRecording = false;
+      activeNotes.clear();
+      recordButton.textContent = 'RECORD';
     }
+    currentLayer = [];
+    console.log("All loops deleted.");
+  }
 
-    deleteButton.addEventListener('click', () => {
-      // If second mode is active, button should be disabled (handled by code),
-      // but let's just double-check:
-      if (!selectionMode) {
-        deleteCurrentLoop();
-      }
-      // If in second mode, nothing happens because the button is disabled.
-    });
+  // 1) Existing "click" event
+  deleteButton.addEventListener('click', () => {
+    // If second mode is active, button should be disabled (handled by code),
+    // but we also check here:
+    if (!selectionMode) {
+      deleteCurrentLoop();
+    }
+    // If in second mode, nothing happens because the button is disabled.
+  });
+
+  // 2) Add a "touchend" event to ensure mobile devices trigger this correctly
+  deleteButton.addEventListener('touchend', (e) => {
+    // Prevent default so it doesn’t conflict with click or other behaviors
+    e.preventDefault();
+    if (!selectionMode) {
+      deleteCurrentLoop();
+    }
+  }, { passive: false });
   </script>
 </body>
 </html>
