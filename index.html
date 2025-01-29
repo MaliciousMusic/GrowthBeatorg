@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <meta charset="UTF-8">
   <!--
     We limit zoom but still allow scrolling by using maximum-scale=1 and
@@ -236,6 +237,166 @@
       </div>
 
   <script>
+
+    const SUPABASE_URL = "https://ixthgaoizmbuqlapgked.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4dGhnYW9pem1idXFsYXBna2VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgwODIwNjcsImV4cCI6MjA1MzY1ODA2N30.uBvoKtSOYjL03sNr_lG9re3V2f20IOn-pg1WBgofFew";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 3) Test console
+  console.log("supabaseClient:", supabaseClient);
+
+  function collectSelectedData() {
+  // 1) Déclare les variables qu'on veut envoyer en base
+  let sens_roue = false;  // boolean: si c'est le bouton #sens_roue_1 ou #sens_roue_2
+  let start_number_dozen = 0; // peut valoir 0,10,20,30
+  let start_number_unit = 0;  // peut valoir 0..9
+  let start_number = 0;       // somme de dozen + unit
+
+  let ball_exit = "";   // "nord", "sud", "est", ...
+  let wheel_cc = "";    // "nord", "sud", "est", ...
+  let ball_speed = 0;   // 0..3
+  let end_number_dozen = 0;
+  let end_number_unit = 0;
+  let end_number = 0;
+
+  // -------- sens_roue (boolean) --------
+  if (document.getElementById("sens_roue_1").classList.contains("selected")) {
+    sens_roue = true;
+  } else if (document.getElementById("sens_roue_2").classList.contains("selected")) {
+    sens_roue = false;
+  }
+  // On part du principe qu’au moins l’un des deux est sélectionné.
+  // Sinon, sens_roue restera false par défaut.
+
+  // -------- start_number_dozen --------
+  if (document.getElementById("start_number_dozen_00").classList.contains("selected")) {
+    start_number_dozen = 0;
+  } else if (document.getElementById("start_number_dozen_10").classList.contains("selected")) {
+    start_number_dozen = 10;
+  } else if (document.getElementById("start_number_dozen_20").classList.contains("selected")) {
+    start_number_dozen = 20;
+  } else if (document.getElementById("start_number_dozen_30").classList.contains("selected")) {
+    start_number_dozen = 30;
+  }
+
+  // -------- start_number_unit --------
+  if (document.getElementById("start_number_unit_01").classList.contains("selected")) {
+    start_number_unit = 1;
+  } else if (document.getElementById("start_number_unit_02").classList.contains("selected")) {
+    start_number_unit = 2;
+  } else if (document.getElementById("start_number_unit_03").classList.contains("selected")) {
+    start_number_unit = 3;
+  } else if (document.getElementById("start_number_unit_04").classList.contains("selected")) {
+    start_number_unit = 4;
+  } else if (document.getElementById("start_number_unit_05").classList.contains("selected")) {
+    start_number_unit = 5;
+  } else if (document.getElementById("start_number_unit_06").classList.contains("selected")) {
+    start_number_unit = 6;
+  } else if (document.getElementById("start_number_unit_07").classList.contains("selected")) {
+    start_number_unit = 7;
+  } else if (document.getElementById("start_number_unit_08").classList.contains("selected")) {
+    start_number_unit = 8;
+  } else if (document.getElementById("start_number_unit_09").classList.contains("selected")) {
+    start_number_unit = 9;
+  }
+  // somme
+  start_number = start_number_dozen + start_number_unit;
+
+  // -------- ball_exit --------
+  if (document.getElementById("ball_exit_nord").classList.contains("selected")) {
+    ball_exit = "nord";
+  } else if (document.getElementById("ball_exit_est").classList.contains("selected")) {
+    ball_exit = "est";
+  } else if (document.getElementById("ball_exit_sud").classList.contains("selected")) {
+    ball_exit = "sud";
+  } else if (document.getElementById("ball_exit_ouest").classList.contains("selected")) {
+    ball_exit = "ouest";
+  } else if (document.getElementById("ball_exit_nord_est").classList.contains("selected")) {
+    ball_exit = "nord_est";
+  } else if (document.getElementById("ball_exit_sud_est").classList.contains("selected")) {
+    ball_exit = "sud_est";
+  } else if (document.getElementById("ball_exit_sud_ouest").classList.contains("selected")) {
+    ball_exit = "sud_ouest";
+  } else if (document.getElementById("ball_exit_ouest").classList.contains("selected")) {
+    // tu as deux "ouest" (ball_exit_ouest) dans le HTML, 
+    // mais on va considérer que c’est la même direction
+    ball_exit = "ouest";
+  }
+
+  // -------- wheel_cc --------
+  if (document.getElementById("wheel_cc_nord").classList.contains("selected")) {
+    wheel_cc = "nord";
+  } else if (document.getElementById("wheel_cc_est").classList.contains("selected")) {
+    wheel_cc = "est";
+  } else if (document.getElementById("wheel_cc_sud").classList.contains("selected")) {
+    wheel_cc = "sud";
+  } else if (document.getElementById("wheel_cc_ouest").classList.contains("selected")) {
+    wheel_cc = "ouest";
+  } else if (document.getElementById("wheel_cc_nord_est").classList.contains("selected")) {
+    wheel_cc = "nord_est";
+  } else if (document.getElementById("wheel_cc_sud_est").classList.contains("selected")) {
+    wheel_cc = "sud_est";
+  } else if (document.getElementById("wheel_cc_sud_ouest").classList.contains("selected")) {
+    wheel_cc = "sud_ouest";
+  } else if (document.getElementById("wheel_cc_exit_ouest").classList.contains("selected")) {
+    wheel_cc = "ouest"; // ou "ouest2", c’est toi qui choisis
+  }
+
+  // -------- ball_speed --------
+  if (document.getElementById("ball_speed1").classList.contains("selected")) {
+    ball_speed = 1;
+  } else if (document.getElementById("ball_speed2").classList.contains("selected")) {
+    ball_speed = 2;
+  } else if (document.getElementById("ball_speed3").classList.contains("selected")) {
+    ball_speed = 3;
+  }
+  // si rien sélectionné, ball_speed reste 0
+
+  // -------- end_number_dozen --------
+  if (document.getElementById("end_number_dozen_00").classList.contains("selected")) {
+    end_number_dozen = 0;
+  } else if (document.getElementById("end_number_dozen_10").classList.contains("selected")) {
+    end_number_dozen = 10;
+  } else if (document.getElementById("end_number_dozen_20").classList.contains("selected")) {
+    end_number_dozen = 20;
+  } else if (document.getElementById("end_number_dozen_30").classList.contains("selected")) {
+    end_number_dozen = 30;
+  }
+
+  // -------- end_number_unit --------
+  if (document.getElementById("end_number_unit_01").classList.contains("selected")) {
+    end_number_unit = 1;
+  } else if (document.getElementById("end_number_unit_02").classList.contains("selected")) {
+    end_number_unit = 2;
+  } else if (document.getElementById("end_number_unit_03").classList.contains("selected")) {
+    end_number_unit = 3;
+  } else if (document.getElementById("end_number_unit_04").classList.contains("selected")) {
+    end_number_unit = 4;
+  } else if (document.getElementById("end_number_unit_05").classList.contains("selected")) {
+    end_number_unit = 5;
+  } else if (document.getElementById("end_number_unit_06").classList.contains("selected")) {
+    end_number_unit = 6;
+  } else if (document.getElementById("end_number_unit_07").classList.contains("selected")) {
+    end_number_unit = 7;
+  } else if (document.getElementById("end_number_unit_08").classList.contains("selected")) {
+    end_number_unit = 8;
+  } else if (document.getElementById("end_number_unit_09").classList.contains("selected")) {
+    end_number_unit = 9;
+  }
+  end_number = end_number_dozen + end_number_unit;
+
+  // 2) On retourne un objet (une ligne) prêt à être inséré en BDD
+  return {
+    sens_roue,
+    start_number,
+    ball_exit,
+    wheel_cc,
+    ball_speed,
+    end_number
+  };
+}
+
+
     // Prompt user for a username
     let username = null;
     window.addEventListener('DOMContentLoaded', () => {
@@ -681,41 +842,61 @@
 
     // Common function to handle record button logic
     function handleRecordButtonLogic() {
-      if (!selectionMode) {
-        // RECORDING LOGIC
-        if (isRecording) {
-          // Stop recording
-          isRecording = false;
-          // Finalize all active notes
-          activeNotes.forEach((noteObj, btn) => {
-            noteObj.duration = performance.now() - noteObj.startTime;
-            currentLayer.push(noteObj);
-          });
-          activeNotes.clear();
+  if (!selectionMode) {
+    // -- MODE ENREGISTREMENT NORMAL --
+    if (isRecording) {
+      // Stop recording
+      isRecording = false;
+      // Finalize all active notes
+      activeNotes.forEach((noteObj, btn) => {
+        noteObj.duration = performance.now() - noteObj.startTime;
+        currentLayer.push(noteObj);
+      });
+      activeNotes.clear();
 
-          if (currentLayer.length) {
-            recordedLayers.push(currentLayer);
-          }
-          recordButton.textContent = 'RECORD';
+      if (currentLayer.length) {
+        recordedLayers.push(currentLayer);
+      }
+      recordButton.textContent = 'RECORD';
 
-          // Playback if we have layers recorded
-          if (recordedLayers.length > 0) {
-            playRecordedLayers();
-          }
-        } else {
-          // Start recording
-          isRecording = true;
-          currentLayer = [];
-          recordButton.textContent = 'STOP RECORDING';
-        }
-      } else {
-        // SELECTION MODE: SEND DATA
-        const selectedData = Array.from(selectedButtons).map(button => ({
-          frequency: button.getAttribute('data-frequency'),
-          color: getComputedStyle(button).backgroundColor
-        }));
-        console.log('Selected Data Sent:', selectedData);
+      // Playback if we have layers recorded
+      if (recordedLayers.length > 0) {
+        playRecordedLayers();
+      }
+    } else {
+      // Start recording
+      isRecording = true;
+      currentLayer = [];
+      recordButton.textContent = 'STOP RECORDING';
+    }
 
+  } else {
+    // -- MODE SELECTION --
+    // 1) Récupère les infos précises (sens_roue, start_number, etc.)
+    const data = collectSelectedData();
+    console.log('Collected Data:', data);
+
+    // 2) Insère dans ta table "resultat" (ou autre nom)
+    supabaseClient
+      .from("resultat")
+      .insert([ data ])
+      .then(response => {
+        console.log("Inserted to Supabase:", response);
+        // tu peux afficher un visuel si tu veux
+        recordButton.style.color = 'green';
+        setTimeout(() => {
+          recordButton.style.color = '';
+        }, 1000);
+      })
+      .catch(error => {
+        console.error("Erreur insertion Supabase:", error);
+      });
+
+    // 3) Désélectionne tous les boutons pour repartir « propre »
+    selectedButtons.forEach(btn => btn.classList.remove('selected'));
+    selectedButtons.clear();
+  }
+}
         // Unselect all after sending the data
         selectedButtons.forEach(btn => btn.classList.remove('selected'));
         selectedButtons.clear();
@@ -725,9 +906,7 @@
         setTimeout(() => {
           recordButton.style.color = '';
         }, 1000);
-      }
-    }
-
+      
     // Toggle selection mode on long press, but only if username === "Agent33"
     function toggleSelectionMode() {
       if (username === "Agent33") {
