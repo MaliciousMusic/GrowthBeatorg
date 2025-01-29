@@ -145,94 +145,95 @@
   </style>
 </head>
 <body>
-  <div class="main-flexbox">
+    <div class="main-flexbox">
 
-    <!-- Première Rangée -->
-    <div class="row">
-
-      <!-- Column 1: now "hihat" -->
-      <div class="column" data-sound="hihat">
-        <button class="button blue2" data-frequency="1000"></button>
-        <button class="button blue" data-frequency="2000"></button>
+        <!-- Première Rangée -->
+        <div class="row">
+    
+          <!-- Column 1: now "hihat" -->
+          <div class="column" data-sound="hihat">
+            <button id="sens_roue_1" class="button blue2" data-frequency="1000"></button>
+            <button id="sens_roue_2" class="button blue" data-frequency="2000"></button>
+          </div>
+    
+          <!-- Column 2: now "kick" -->
+          <div class="column" data-sound="kick">
+            <button id="start_number_dozen_00" class="button green0" data-frequency="20"></button>
+            <button id="start_number_dozen_10" class="button green1" data-frequency="40"></button>
+            <button id="start_number_dozen_20" class="button green2" data-frequency="60"></button>
+            <button id="start_number_dozen_30" class="button green3" data-frequency="80"></button>
+            <button id="start_number_unit_01" class="button green1" data-frequency="120"></button>
+            <button id="start_number_unit_02" class="button green2" data-frequency="140"></button>
+            <button id="start_number_unit_03" class="button green3" data-frequency="160"></button>
+            <button id="start_number_unit_04" class="button green4" data-frequency="180"></button>
+            <button id="start_number_unit_05" class="button green5" data-frequency="200"></button>
+            <button id="start_number_unit_06" class="button green6" data-frequency="220"></button>
+            <button id="start_number_unit_07" class="button green7" data-frequency="240"></button>
+            <button id="start_number_unit_08" class="button green8" data-frequency="280.00"></button>
+            <button id="start_number_unit_09" class="button green9" data-frequency="100"></button>
+          </div>
+    
+          <!-- Column 3: now "distortion" -->
+          <div class="column" data-sound="distortion">
+            <button id="ball_exit_nord" class="button red" data-frequency="100"></button>
+            <button id="ball_exit_est" class="button orange" data-frequency="200"></button>
+            <button id="ball_exit_sud" class="button yellow" data-frequency="100"></button>
+            <button id="ball_exit_ouest" class="button green1" data-frequency="100"></button>
+            <button id="ball_exit_nord_est" class="button cyan" data-frequency="300"></button>
+            <button id="ball_exit_sud_est" class="button pink" data-frequency="500"></button>
+            <button id="ball_exit_sud_ouest" class="button fuschia" data-frequency="600"></button>
+            <button id="ball_exit_ouest" class="button purple" data-frequency="700"></button>
+          </div>
+    
+          <!-- Column 4: now "bass" -->
+          <div class="column" data-sound="bass">
+            <button id="wheel_cc_nord" class="button red" data-frequency="100"></button>
+            <button id="wheel_cc_est" class="button orange" data-frequency="200"></button>
+            <button id="wheel_cc_sud" class="button yellow" data-frequency="100"></button>
+            <button id="wheel_cc_ouest" class="button green1" data-frequency="100"></button>
+            <button id="wheel_cc_nord_est" class="button cyan" data-frequency="300"></button>
+            <button id="wheel_cc_sud_est" class="button pink" data-frequency="500"></button>
+            <button id="wheel_cc_sud_ouest" class="button fuschia" data-frequency="600"></button>
+            <button id="wheel_cc_exit_ouest" class="button purple" data-frequency="700"></button>
+          </div>
+    
+          <!-- Column 5: now "snare" -->
+          <div class="column" data-sound="snare">
+            <button id="ball_speed1" class="button blue0" data-frequency="123.25"></button>
+            <button id="ball_speed2" class="button blue" data-frequency="587.33"></button>
+            <button id="ball_speed3" class="button blue2" data-frequency="659.25"></button>
+          </div>
+    
+          <!-- Column 6: now "choir" -->
+          <div class="column" data-sound="choir">
+            <button id="end_number_dozen_00" class="button ye0" data-frequency="230"></button>
+            <button id="end_number_dozen_10" class="button ye1" data-frequency="260"></button>
+            <button id="end_number_dozen_20" class="button ye2" data-frequency="290"></button>
+            <button id="end_number_dozen_30" class="button ye3" data-frequency="320"></button>
+            <button id="end_number_unit_01" class="button ye1" data-frequency="380"></button>
+            <button id="end_number_unit_02" class="button ye2" data-frequency="410"></button>
+            <button id="end_number_unit_03" class="button ye3" data-frequency="440"></button>
+            <button id="end_number_unit_04" class="button ye4" data-frequency="470"></button>
+            <button id="end_number_unit_05" class="button ye5" data-frequency="500"></button>
+            <button id="end_number_unit_06" class="button ye6" data-frequency="530"></button>
+            <button id="end_number_unit_07" class="button ye7" data-frequency="560"></button>
+            <button id="end_number_unit_08" class="button ye8" data-frequency="590"></button>
+            <button id="end_number_unit_09" class="button ye9" data-frequency="350"></button>
+          </div>
+    
+        </div>
+    
+       
+        <!-- RECORD and DELETE LOOP Buttons -->
+        <div class="big-button-container">
+          <button id="recordBtn" class="big-button">RECORD</button>
+          <button id="deleteBtn" class="big-button" disabled>DELETE LOOP</button>
+        </div>
+    
+        <footer class="footer">
+          <p>© 2025 GrowthBeat. All Rights Reserved.</p>
+        </footer>
       </div>
-
-      <!-- Column 2: now "kick" -->
-      <div class="column" data-sound="kick">
-        <button class="button green0" data-frequency="20"></button>
-        <button class="button green1" data-frequency="40"></button>
-        <button class="button green2" data-frequency="60"></button>
-        <button class="button green3" data-frequency="80"></button>
-        <button class="button green1" data-frequency="120"></button>
-        <button class="button green2" data-frequency="140"></button>
-        <button class="button green3" data-frequency="160"></button>
-        <button class="button green4" data-frequency="180"></button>
-        <button class="button green5" data-frequency="200"></button>
-        <button class="button green6" data-frequency="220"></button>
-        <button class="button green7" data-frequency="240"></button>
-        <button class="button green8" data-frequency="280.00"></button>
-        <button class="button green9" data-frequency="100"></button>
-      </div>
-
-      <!-- Column 3: now "distortion" -->
-      <div class="column" data-sound="distortion">
-        <button class="button red" data-frequency="100"></button>
-        <button class="button orange" data-frequency="200"></button>
-        <button class="button yellow" data-frequency="100"></button>
-        <button class="button green1" data-frequency="100"></button>
-        <button class="button cyan" data-frequency="300"></button>
-        <button class="button pink" data-frequency="500"></button>
-        <button class="button fuschia" data-frequency="600"></button>
-        <button class="button purple" data-frequency="700"></button>
-      </div>
-
-      <!-- Column 4: now "bass" -->
-      <div class="column" data-sound="bass">
-        <button class="button red" data-frequency="100"></button>
-        <button class="button orange" data-frequency="200"></button>
-        <button class="button yellow" data-frequency="100"></button>
-        <button class="button green1" data-frequency="100"></button>
-        <button class="button cyan" data-frequency="300"></button>
-        <button class="button pink" data-frequency="500"></button>
-        <button class="button fuschia" data-frequency="600"></button>
-        <button class="button purple" data-frequency="700"></button>
-      </div>
-
-      <!-- Column 5: now "snare" -->
-      <div class="column" data-sound="snare">
-        <button class="button blue0" data-frequency="123.25"></button>
-        <button class="button blue" data-frequency="587.33"></button>
-        <button class="button blue2" data-frequency="659.25"></button>
-      </div>
-
-      <!-- Column 6: now "choir" -->
-      <div class="column" data-sound="choir">
-        <button class="button ye0" data-frequency="230"></button>
-        <button class="button ye1" data-frequency="260"></button>
-        <button class="button ye2" data-frequency="290"></button>
-        <button class="button ye3" data-frequency="320"></button>
-        <button class="button ye1" data-frequency="380"></button>
-        <button class="button ye2" data-frequency="410"></button>
-        <button class="button ye3" data-frequency="440"></button>
-        <button class="button ye4" data-frequency="470"></button>
-        <button class="button ye5" data-frequency="500"></button>
-        <button class="button ye6" data-frequency="530"></button>
-        <button class="button ye7" data-frequency="560"></button>
-        <button class="button ye8" data-frequency="590"></button>
-        <button class="button ye9" data-frequency="350"></button>
-      </div>
-
-    </div>
-
-    <!-- RECORD and DELETE LOOP Buttons -->
-    <div class="big-button-container">
-      <button id="recordBtn" class="big-button">R E C O R D</button>
-      <button id="deleteBtn" class="big-button" disabled>DELETE LOOP</button>
-    </div>
-
-    <footer class="footer">
-      <p>© 2025 GrowthBeat. All Rights Reserved.</p>
-    </footer>
-  </div>
 
   <script>
     // Prompt user for a username
