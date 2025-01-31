@@ -49,11 +49,10 @@
     /* --- Boutons --- */
     .button {
       flex: 1; /* Chaque bouton prend un espace égal dans sa colonne */
-      border: 3px #f0f0f0;
-      text-align: center;
+      
+      text-align: right;
       font-size: 1rem;
-      font-weight: bold;
-      color: #fff;
+      color: #94b4ff;
       cursor: pointer;
       transition: transform 0.2s;
     }
@@ -62,44 +61,7 @@
     }
 
     /* --- Couleurs des boutons --- */
-    .blue0 { background-color: #61abf6; }
     .blue { background-color: #0066cc; }
-    .blue2 { background-color: #002d5b; }
-    .yellow { background-color: #ffcc00; }
-    .red { background-color: #b60808; }
-    .orange { background-color: #ff6600; }
-
-    /* Greens */
-    .green0 { background-color: #98eb98; } 
-    .green1 { background-color: #79ff79; }
-    .green2 { background-color: #52e252; }
-    .green3 { background-color: #33cc33; }
-    .green4 { background-color: #23a023; }
-    .green5 { background-color: #146814; }
-    .green6 { background-color: #075007; }
-    .green7 { background-color: #003700; }
-    .green8 { background-color: #002e00; } 
-    .green9 { background-color: #001a00; } 
-
-    /* Yellow-to-Brown Gradient */
-    .ye0 { background-color: #ffffcc; }
-    .ye1 { background-color: #ffff99; }
-    .ye2 { background-color: #ffcc66; }
-    .ye3 { background-color: #ff9933; }
-    .ye4 { background-color: #ff6600; }
-    .ye5 { background-color: #cc5200; }
-    .ye6 { background-color: #993d00; }
-    .ye7 { background-color: #662900; }
-    .ye8 { background-color: #4d1f00; }
-    .ye9 { background-color: #331400; }
-
-    .cyan { background-color: #00cccc; }
-    .pink { background-color: #ff66cc; }
-    .fuschia { background-color: #990b5e; }
-    .purple { background-color: #4f045e; }
-    .darkgray { background-color: #454545; }
-    .gray { background-color: #808080; }
-    .black { background-color: #171717; }
 
     /* Big Button Container */
     .big-button-container {
@@ -115,7 +77,7 @@
     .big-button {
       background-color: white;
       border: #0066cc;
-      color: #000;
+      color: #3021cd;
       font-family: "Arial";
       font-size: 1.2rem;
       width: 100%; /* Take full width in the container */
@@ -129,7 +91,7 @@
 
     /* Sélection visuelle */
     .selected {
-      filter: brightness(250%);
+      filter: brightness(-50%);
     }
 
     footer {
@@ -153,73 +115,78 @@
     
           <!-- Column 1: now "hihat" -->
           <div class="column" data-sound="hihat">
-            <button id="sens_roue_1" class="button blue2" data-frequency="1000"></button>
-            <button id="sens_roue_2" class="button blue" data-frequency="2000"></button>
+            <button id="sens_roue_1" class="button blue" data-frequency="1000">Uptempo</button>
+            <button id="sens_roue_2" class="button blue" data-frequency="2000">Rewind</button>
           </div>
     
           <!-- Column 2: now "kick" -->
           <div class="column" data-sound="kick">
-            <button id="start_number_dozen_00" class="button green0" data-frequency="20"></button>
-            <button id="start_number_dozen_10" class="button green1" data-frequency="40"></button>
-            <button id="start_number_dozen_20" class="button green2" data-frequency="60"></button>
-            <button id="start_number_dozen_30" class="button green3" data-frequency="80"></button>
-            <button id="start_number_unit_01" class="button green1" data-frequency="120"></button>
-            <button id="start_number_unit_02" class="button green2" data-frequency="140"></button>
-            <button id="start_number_unit_03" class="button green3" data-frequency="160"></button>
-            <button id="start_number_unit_04" class="button green4" data-frequency="180"></button>
-            <button id="start_number_unit_05" class="button green5" data-frequency="200"></button>
-            <button id="start_number_unit_06" class="button green6" data-frequency="220"></button>
-            <button id="start_number_unit_07" class="button green7" data-frequency="240"></button>
-            <button id="start_number_unit_08" class="button green8" data-frequency="280.00"></button>
-            <button id="start_number_unit_09" class="button green9" data-frequency="100"></button>
+            <button id="start_number_dozen_00" class="button blue" data-frequency="20">0</button>
+            <button id="start_number_dozen_10" class="button blue" data-frequency="40">1</button>
+            <button id="start_number_dozen_20" class="button blue" data-frequency="60">2</button>
+            <button id="start_number_dozen_30" class="button blue" data-frequency="80">3</button>
+            <button id="start_number_unit_01" class="button blue" data-frequency="120">1</button>
+            <button id="start_number_unit_02" class="button blue" data-frequency="140">2</button>
+            <button id="start_number_unit_03" class="button blue" data-frequency="160">3</button>
+            <button id="start_number_unit_04" class="button blue" data-frequency="180">4</button>
+            <button id="start_number_unit_05" class="button blue" data-frequency="200">5</button>
+            <button id="start_number_unit_06" class="button blue" data-frequency="220">6</button>
+            <button id="start_number_unit_07" class="button blue" data-frequency="240">7</button>
+            <button id="start_number_unit_08" class="button blue" data-frequency="280.00">8</button>
+            <button id="start_number_unit_09" class="button blue" data-frequency="100">9</button>
           </div>
     
           <!-- Column 3: now "distortion" -->
           <div class="column" data-sound="distortion">
-            <button id="ball_exit_nord" class="button red" data-frequency="100"></button>
-            <button id="ball_exit_est" class="button orange" data-frequency="200"></button>
-            <button id="ball_exit_sud" class="button yellow" data-frequency="100"></button>
-            <button id="ball_exit_ouest" class="button green1" data-frequency="100"></button>
-            <button id="ball_exit_nord_est" class="button cyan" data-frequency="300"></button>
-            <button id="ball_exit_sud_est" class="button pink" data-frequency="500"></button>
-            <button id="ball_exit_sud_ouest" class="button fuschia" data-frequency="600"></button>
-            <button id="ball_exit_ouest" class="button purple" data-frequency="700"></button>
+            <button id="ball_exit_nord" class="button blue" data-frequency="100">0</button>
+            <button id="ball_exit_est" class="button blue" data-frequency="200">1</button>
+            <button id="ball_exit_sud" class="button blue" data-frequency="100">2</button>
+            <button id="ball_exit_ouest" class="button blue" data-frequency="100">3</button>
+            <button id="ball_exit_nord_est" class="button blue" data-frequency="300">4</button>
+            <button id="ball_exit_sud_est" class="button blue" data-frequency="500">5</button>
+            <button id="ball_exit_sud_ouest" class="button blue" data-frequency="600">6</button>
+            <button id="ball_exit_ouest" class="button blue" data-frequency="700">7</button>
           </div>
     
           <!-- Column 4: now "bass" -->
           <div class="column" data-sound="bass">
-            <button id="wheel_cc_nord" class="button red" data-frequency="100"></button>
-            <button id="wheel_cc_est" class="button orange" data-frequency="200"></button>
-            <button id="wheel_cc_sud" class="button yellow" data-frequency="100"></button>
-            <button id="wheel_cc_ouest" class="button green1" data-frequency="100"></button>
-            <button id="wheel_cc_nord_est" class="button cyan" data-frequency="300"></button>
-            <button id="wheel_cc_sud_est" class="button pink" data-frequency="500"></button>
-            <button id="wheel_cc_sud_ouest" class="button fuschia" data-frequency="600"></button>
-            <button id="wheel_cc_exit_ouest" class="button purple" data-frequency="700"></button>
+            <button id="wheel_cc_0" class="button blue" data-frequency="100">0</button>
+            <button id="wheel_cc_1" class="button blue" data-frequency="200">1</button>
+            <button id="wheel_cc_2" class="button blue" data-frequency="300">2</button>
+            <button id="wheel_cc_3" class="button blue" data-frequency="400">3</button>
+            <button id="wheel_cc_4" class="button blue" data-frequency="500">4</button>
+            <button id="wheel_cc_5" class="button blue" data-frequency="600">5</button>
+            <button id="wheel_cc_6" class="button blue" data-frequency="700">6</button>
+            <button id="wheel_cc_7" class="button blue" data-frequency="800">7</button>
+            <button id="wheel_cc_8" class="button blue" data-frequency="900">8</button>
+            <button id="wheel_cc_9" class="button blue" data-frequency="1000">9</button>
+            <button id="wheel_cc_10" class="button blue" data-frequency="1100">10</button>
+            <button id="wheel_cc_11" class="button blue" data-frequency="1200">11</button>
+
           </div>
     
           <!-- Column 5: now "snare" -->
           <div class="column" data-sound="snare">
-            <button id="ball_speed1" class="button blue0" data-frequency="123.25"></button>
-            <button id="ball_speed2" class="button blue" data-frequency="587.33"></button>
-            <button id="ball_speed3" class="button blue2" data-frequency="659.25"></button>
+            <button id="ball_speed1" class="button blue" data-frequency="123.25">1</button>
+            <button id="ball_speed2" class="button blue" data-frequency="587.33">2</button>
+            <button id="ball_speed3" class="button blue" data-frequency="659.25">3</button>
           </div>
     
           <!-- Column 6: now "choir" -->
           <div class="column" data-sound="choir">
-            <button id="end_number_dozen_00" class="button ye0" data-frequency="230"></button>
-            <button id="end_number_dozen_10" class="button ye1" data-frequency="260"></button>
-            <button id="end_number_dozen_20" class="button ye2" data-frequency="290"></button>
-            <button id="end_number_dozen_30" class="button ye3" data-frequency="320"></button>
-            <button id="end_number_unit_01" class="button ye1" data-frequency="380"></button>
-            <button id="end_number_unit_02" class="button ye2" data-frequency="410"></button>
-            <button id="end_number_unit_03" class="button ye3" data-frequency="440"></button>
-            <button id="end_number_unit_04" class="button ye4" data-frequency="470"></button>
-            <button id="end_number_unit_05" class="button ye5" data-frequency="500"></button>
-            <button id="end_number_unit_06" class="button ye6" data-frequency="530"></button>
-            <button id="end_number_unit_07" class="button ye7" data-frequency="560"></button>
-            <button id="end_number_unit_08" class="button ye8" data-frequency="590"></button>
-            <button id="end_number_unit_09" class="button ye9" data-frequency="350"></button>
+            <button id="end_number_dozen_00" class="button blue" data-frequency="230">0</button>
+            <button id="end_number_dozen_10" class="button blue" data-frequency="260">1</button>
+            <button id="end_number_dozen_20" class="button blue" data-frequency="290">2</button>
+            <button id="end_number_dozen_30" class="button blue" data-frequency="320">3</button>
+            <button id="end_number_unit_01" class="button blue" data-frequency="380">1</button>
+            <button id="end_number_unit_02" class="button blue" data-frequency="410">2</button>
+            <button id="end_number_unit_03" class="button blue" data-frequency="440">3</button>
+            <button id="end_number_unit_04" class="button blue" data-frequency="470">4</button>
+            <button id="end_number_unit_05" class="button blue" data-frequency="500">5</button>
+            <button id="end_number_unit_06" class="button blue" data-frequency="530">6</button>
+            <button id="end_number_unit_07" class="button blue" data-frequency="560">7</button>
+            <button id="end_number_unit_08" class="button blue" data-frequency="590">8</button>
+            <button id="end_number_unit_09" class="button blue" data-frequency="350">9</button>
           </div>
     
         </div>
@@ -324,22 +291,30 @@
   }
 
   // -------- wheel_cc --------
-  if (document.getElementById("wheel_cc_nord").classList.contains("selected")) {
-    wheel_cc = "nord";
-  } else if (document.getElementById("wheel_cc_est").classList.contains("selected")) {
-    wheel_cc = "est";
-  } else if (document.getElementById("wheel_cc_sud").classList.contains("selected")) {
-    wheel_cc = "sud";
-  } else if (document.getElementById("wheel_cc_ouest").classList.contains("selected")) {
-    wheel_cc = "ouest";
-  } else if (document.getElementById("wheel_cc_nord_est").classList.contains("selected")) {
-    wheel_cc = "nord_est";
-  } else if (document.getElementById("wheel_cc_sud_est").classList.contains("selected")) {
-    wheel_cc = "sud_est";
-  } else if (document.getElementById("wheel_cc_sud_ouest").classList.contains("selected")) {
-    wheel_cc = "sud_ouest";
-  } else if (document.getElementById("wheel_cc_exit_ouest").classList.contains("selected")) {
-    wheel_cc = "ouest"; // ou "ouest2", c’est toi qui choisis
+  if (document.getElementById("wheel_cc_0").classList.contains("selected")) {
+    wheel_cc = "0";
+  } else if (document.getElementById("wheel_cc_1").classList.contains("selected")) {
+    wheel_cc = "1";
+  } else if (document.getElementById("wheel_cc_2").classList.contains("selected")) {
+    wheel_cc = "2";
+  } else if (document.getElementById("wheel_cc_3").classList.contains("selected")) {
+    wheel_cc = "3";
+  } else if (document.getElementById("wheel_cc_4").classList.contains("selected")) {
+    wheel_cc = "4";
+  } else if (document.getElementById("wheel_cc_5").classList.contains("selected")) {
+    wheel_cc = "5";
+  } else if (document.getElementById("wheel_cc_6").classList.contains("selected")) {
+    wheel_cc = "6";
+  } else if (document.getElementById("wheel_cc_7").classList.contains("selected")) {
+    wheel_cc = "7"; 
+} else if (document.getElementById("wheel_cc_8").classList.contains("selected")) {
+    wheel_cc = "8";
+  } else if (document.getElementById("wheel_cc_9").classList.contains("selected")) {
+    wheel_cc = "9";
+  } else if (document.getElementById("wheel_cc_10").classList.contains("selected")) {
+    wheel_cc = "10";
+  } else if (document.getElementById("wheel_cc_11").classList.contains("selected")) {
+    wheel_cc = "11"; 
   }
 
   // -------- ball_speed --------
