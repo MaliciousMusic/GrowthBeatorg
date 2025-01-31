@@ -12,7 +12,7 @@
       padding: 0;
       height: 100vh;
       font-family: Arial, sans-serif;
-      background-color: #000;
+      
       overflow-y: scroll; /* allow scrolling if needed */
     }
 
@@ -22,7 +22,7 @@
       flex-direction: column;
       height: 100vh;
       box-sizing: border-box;
-      background-color: #fff;
+      background-color: #2f2f2f;
     }
 
     /* --- Rows --- */
@@ -37,7 +37,7 @@
       display: flex;
       flex-direction: column;
       flex: 1;
-      background-color: #fff;
+      background-color: #2f2f2f;
       box-sizing: border-box;
       padding: 5px; /* spacing around the column so buttons have some breathing room */
     }
@@ -47,7 +47,7 @@
       flex: 1;
       margin: 5px;                 /* spacing around each pad */
       border-radius: 10px;         /* rounded corners */
-      color: #fff;                 /* text color */
+      color: #3021cd;                 /* text color */
       background-color: #444;      /* default pad background */
       box-shadow: 0 4px 0 #222;    /* simple “3D” effect */
       cursor: pointer;
@@ -68,15 +68,23 @@
       box-shadow: 0 2px 0 #111;
     }
 
-    /* --- “Lit” state for wave effect --- */
-    .lit {
-      background-color: #ff9900;
-      box-shadow: 0 0 15px #ff9900;
-    }
+    /* --- “Lit” state with Rainbow effect --- */
+.lit {
+  background: linear-gradient(90deg, blue, indigo, violet);
+  background-size: 300% 300%;
+  animation: rainbowGlow 1s linear infinite alternate;
+ 
+}
+@keyframes rainbowGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 
     /* Example color variation (blue) if desired */
     .blue {
-      background-color: #0066cc;
+      background-color: #202439;
     }
 
     /* Big Button Container (Record, Delete, etc.) */
@@ -89,7 +97,7 @@
       gap: 10px; 
     }
     .big-button {
-      background-color: white;
+      background-color: rgba(255, 255, 255, 0);
       border: #0066cc;
       color: #3021cd;
       font-family: "Arial";
@@ -246,13 +254,12 @@
     });
 
     /****************************************
-     *       BUILD 2D “BUTTON MATRIX”
-     ****************************************/
-    const rows = Array.from(document.querySelectorAll('.row'));
-    // Each row’s .button elements in an array
-    const buttonMatrix = rows.map(rowElem => 
-      Array.from(rowElem.querySelectorAll('.button'))
-    );
+ *   BUILD 2D BUTTON MATRIX (COLUMN-FIRST)
+ ****************************************/
+const columns = Array.from(document.querySelectorAll('.column'));
+const buttonMatrix = columns.map(colElem => 
+  Array.from(colElem.querySelectorAll('.button'))
+);
 
     // Helper to find [row, col] position of a button in the matrix
     function findButtonPosition(btn) {
@@ -322,14 +329,17 @@
       }
     }
 
-    /****************************************
+
+
+
+/****************************************
  *   FIND BUTTON POSITION IN MATRIX
  ****************************************/
 function findButtonPosition(btn) {
-  for (let rowIndex = 0; rowIndex < buttonMatrix.length; rowIndex++) {
-    for (let colIndex = 0; colIndex < buttonMatrix[rowIndex].length; colIndex++) {
-      if (buttonMatrix[rowIndex][colIndex] === btn) {
-        return [rowIndex, colIndex]; // Found the button's position
+  for (let colIndex = 0; colIndex < buttonMatrix.length; colIndex++) {
+    for (let rowIndex = 0; rowIndex < buttonMatrix[colIndex].length; rowIndex++) {
+      if (buttonMatrix[colIndex][rowIndex] === btn) {
+        return [colIndex, rowIndex]; // Found the button's position
       }
     }
   }
@@ -337,68 +347,83 @@ function findButtonPosition(btn) {
 }
 
 /****************************************
- *   FIND NEIGHBORING BUTTONS
+ *   FIND ALL 8 NEIGHBORING BUTTONS
  ****************************************/
-function getNeighbors(row, col) {
+function getNeighbors(col, row) {
   const neighbors = [];
 
-  // Check if adjacent buttons exist in the same row
-  if (col - 1 >= 0) {
-    neighbors.push([row, col - 1]); // Left
-  }
-  if (col + 1 < buttonMatrix[row].length) {
-    neighbors.push([row, col + 1]); // Right
-  }
+  // Define all 8 possible movement directions
+  const directions = [
+    [-1, 0], [1, 0], [0, -1], [0, 1], // Up, Down, Left, Right
+    [-1, -1], [-1, 1], [1, -1], [1, 1] // Diagonal
+  ];
 
-  // Check if buttons exist in rows above and below
-  if (row - 1 >= 0 && buttonMatrix[row - 1][col]) {
-    neighbors.push([row - 1, col]); // Above
-  }
-  if (row + 1 < buttonMatrix.length && buttonMatrix[row + 1][col]) {
-    neighbors.push([row + 1, col]); // Below
-  }
+  directions.forEach(([dCol, dRow]) => {
+    const newCol = col + dCol;
+    const newRow = row + dRow;
+    if (
+      newCol >= 0 && newCol < buttonMatrix.length &&
+      newRow >= 0 && newRow < buttonMatrix[newCol].length
+    ) {
+      neighbors.push([newCol, newRow]);
+    }
+  });
 
   return neighbors;
 }
 
 /****************************************
- *   BFS WAVE LIGHT-UP ANIMATION
+ *   BFS WAVE LIGHT-UP ANIMATION (CIRCULAR)
  ****************************************/
 function animateWave(startBtn) {
   const startPos = findButtonPosition(startBtn);
   if (!startPos) return; // Exit if button position is not found
 
   const visited = new Set();
-  const queue = [{ pos: startPos, dist: 0 }];
-  const maxDist = 5; // Spread over 5 steps
-  const delayPerStep = 80; // 80ms delay per wave step
+  let queue = [{ pos: startPos, dist: 0 }];
+  const maxDist = 6; // Maximum spread distance
+  const delayPerStep = 80; // Delay between wave expansions
 
-  while (queue.length > 0) {
-    const { pos, dist } = queue.shift();
-    const key = pos.join(',');
+  for (let currentDist = 0; currentDist <= maxDist; currentDist++) {
+    let nextQueue = [];
 
-    if (visited.has(key)) continue;
-    visited.add(key);
+    queue.forEach(({ pos }) => {
+      const key = pos.join(',');
+      if (visited.has(key)) return;
+      visited.add(key);
 
-    // Delay the lighting effect based on distance
-    setTimeout(() => {
-      const [r, c] = pos;
-      buttonMatrix[r][c].classList.add('lit');
-      
-      // Remove 'lit' after 300ms
       setTimeout(() => {
-        buttonMatrix[r][c].classList.remove('lit');
-      }, 300);
-    }, dist * delayPerStep);
+        const [c, r] = pos;
+        buttonMatrix[c][r].classList.add('lit');
 
-    // Continue spreading the wave if within the max range
-    if (dist < maxDist) {
+        // Remove glow effect after some time
+        setTimeout(() => {
+          buttonMatrix[c][r].classList.remove('lit');
+        }, 400);
+      }, currentDist * delayPerStep);
+
+      // Add all valid neighbors to the next layer
       const neighbors = getNeighbors(...pos);
-      neighbors.forEach(n => queue.push({ pos: n, dist: dist + 1 }));
-    }
+      neighbors.forEach(n => {
+        if (!visited.has(n.join(','))) {
+          nextQueue.push({ pos: n, dist: currentDist + 1 });
+        }
+      });
+    });
+
+    queue = nextQueue; // Move to next ripple layer
   }
 }
 
+/****************************************
+ *   ADD EVENT LISTENERS TO BUTTONS
+ ****************************************/
+document.querySelectorAll('.button').forEach(button => {
+  button.addEventListener('click', () => animateWave(button));
+});
+
+
+    
 
     /****************************************
      *       SOUND FUNCTIONS
