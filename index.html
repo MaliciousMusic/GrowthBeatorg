@@ -68,18 +68,20 @@
       box-shadow: 0 2px 0 #111;
     }
 
-    /* --- “Lit” state with Rainbow effect --- */
+  /* --- Dynamic Lit Effect with Rainbow Glow --- */
 .lit {
-  background: linear-gradient(90deg, blue, indigo, violet);
+  background: linear-gradient(90deg, var(--color1), var(--color2), var(--color3), var(--color4), var(--color5), var(--color6), var(--color7), var(--color8), var(--color9));
   background-size: 300% 300%;
-  animation: rainbowGlow 1s linear infinite alternate;
- 
+  animation: rainbowGlow 0.5s linear infinite alternate;
+  
 }
+
 @keyframes rainbowGlow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
 
 
     /* Example color variation (blue) if desired */
@@ -297,38 +299,48 @@ const buttonMatrix = columns.map(colElem =>
     /****************************************
      *   BFS WAVE LIGHT-UP ANIMATION
      ****************************************/
-    function animateWave(startBtn) {
-      const startPos = findButtonPosition(startBtn);
-      if (!startPos) return;
+     function animateWave(startBtn) {
+  applyNewColorTheme(); // Update color theme before ripple starts
+  const startPos = findButtonPosition(startBtn);
+  if (!startPos) return;
 
-      const visited = new Set();
-      const queue = [{ pos: startPos, dist: 0 }];
-      const maxDist = 5;           // how many steps outward
-      const delayPerStep = 80;     // ms between wave expansions
+  const visited = new Set();
+  let queue = [{ pos: startPos, dist: 0 }];
+  const maxDist = 6; // How far the ripple spreads
+  const delayPerStep = 80; // Delay between wave expansions
 
-      while (queue.length > 0) {
-        const { pos, dist } = queue.shift();
-        const key = pos.join(',');
-        if (visited.has(key)) continue;
-        visited.add(key);
+  for (let currentDist = 0; currentDist <= maxDist; currentDist++) {
+    let nextQueue = [];
 
-        // schedule lighting up at dist * delay
-        setTimeout(() => {
-          const [rr, cc] = pos;
-          buttonMatrix[rr][cc].classList.add('lit');
+    queue.forEach(({ pos }) => {
+      const key = pos.join(',');
+      if (visited.has(key)) return;
+      visited.add(key);
+
+      setTimeout(() => {
+        const [c, r] = pos;
+        if (buttonMatrix[c] && buttonMatrix[c][r]) {
+          buttonMatrix[c][r].classList.add('lit');
+
+          // Remove glow effect after some time
           setTimeout(() => {
-            buttonMatrix[rr][cc].classList.remove('lit');
-          }, 200);
-        }, dist * delayPerStep);
-
-        // only continue BFS if dist < maxDist
-        if (dist < maxDist) {
-          const nbrs = getNeighbors(rr, cc);
-          nbrs.forEach(n => queue.push({ pos: n, dist: dist + 1 }));
+            buttonMatrix[c][r].classList.remove('lit');
+          }, 500);
         }
-      }
-    }
+      }, currentDist * delayPerStep);
 
+      // Add all valid neighbors to the next ripple layer
+      const neighbors = getNeighbors(...pos);
+      neighbors.forEach(n => {
+        if (!visited.has(n.join(','))) {
+          nextQueue.push({ pos: n, dist: currentDist + 1 });
+        }
+      });
+    });
+
+    queue = nextQueue; // Move to next ripple layer
+  }
+}
 
 
 
@@ -375,14 +387,15 @@ function getNeighbors(col, row) {
 /****************************************
  *   BFS WAVE LIGHT-UP ANIMATION (CIRCULAR)
  ****************************************/
-function animateWave(startBtn) {
+ function animateWave(startBtn) {
+  applyNewColorTheme(); // Update color theme before ripple starts
   const startPos = findButtonPosition(startBtn);
-  if (!startPos) return; // Exit if button position is not found
+  if (!startPos) return;
 
   const visited = new Set();
   let queue = [{ pos: startPos, dist: 0 }];
-  const maxDist = 6; // Maximum spread distance
-  const delayPerStep = 80; // Delay between wave expansions
+  const maxDist = 6; // Spread distance
+  const delayPerStep = 80; // Delay between each wave layer
 
   for (let currentDist = 0; currentDist <= maxDist; currentDist++) {
     let nextQueue = [];
@@ -394,33 +407,48 @@ function animateWave(startBtn) {
 
       setTimeout(() => {
         const [c, r] = pos;
-        buttonMatrix[c][r].classList.add('lit');
+        if (buttonMatrix[c] && buttonMatrix[c][r]) {
+          let btn = buttonMatrix[c][r];
 
-        // Remove glow effect after some time
-        setTimeout(() => {
-          buttonMatrix[c][r].classList.remove('lit');
-        }, 400);
+          // Assign a specific color from the current color set based on distance
+          let colors = colorSets[colorIndex];
+          let color = colors[currentDist % colors.length]; // Cycle through colors
+
+          btn.style.backgroundColor = color; // Direct color instead of gradient
+          btn.classList.add('lit');
+
+          // Remove effect after some time
+          setTimeout(() => {
+            btn.classList.remove('lit');
+            btn.style.backgroundColor = ''; // Reset to original color
+          }, 600);
+        }
       }, currentDist * delayPerStep);
 
-      // Add all valid neighbors to the next layer
-      const neighbors = getNeighbors(...pos);
-      neighbors.forEach(n => {
+      // Add neighbors to next layer
+      getNeighbors(...pos).forEach(n => {
         if (!visited.has(n.join(','))) {
           nextQueue.push({ pos: n, dist: currentDist + 1 });
         }
       });
     });
 
-    queue = nextQueue; // Move to next ripple layer
+    queue = nextQueue;
   }
+
+  // Move to the next color set for the next animation
+  colorIndex = (colorIndex + 1) % colorSets.length;
 }
+
+
 
 /****************************************
  *   ADD EVENT LISTENERS TO BUTTONS
  ****************************************/
-document.querySelectorAll('.button').forEach(button => {
+ document.querySelectorAll('.button').forEach(button => {
   button.addEventListener('click', () => animateWave(button));
 });
+
 
 
     
@@ -1132,6 +1160,49 @@ document.querySelectorAll('.button').forEach(button => {
         metronomeButton.textContent = "STOP METRONOME";
       }
     });
+
+    // 10 sets of colors (each with 3 colors)
+    const colorSets = [
+  ["rgb(111, 0, 121)", "rgb(255, 39, 208)"],
+  ["rgb(0, 121, 145)", "rgb(39, 255, 195)"],
+  ["rgb(255, 0, 121)", "rgb(255, 128, 39)"],
+  ["rgb(121, 0, 255)", "rgb(39, 39, 255)"],
+  ["rgb(255, 0, 50)", "rgb(255, 100, 100)"],
+  ["rgb(50, 50, 255)", "rgb(100, 150, 255)"],
+  ["rgb(255, 200, 0)", "rgb(255, 100, 0)"],
+  ["rgb(100, 255, 0)", "rgb(39, 200, 50)"],
+  ["rgb(255, 50, 255)", "rgb(150, 50, 255)"],
+  ["rgb(255, 255, 255)", "rgb(200, 200, 255)"],
+];
+
+
+let colorIndex = 0; // Track which color set is currently in use
+
+function applyNewColorTheme() {
+  // Get the next color set in the loop
+  const colors = colorSets[colorIndex];
+
+  // Ensure we have exactly 9 colors applied
+  if (colors.length === 9) {
+    document.documentElement.style.setProperty('--color1', colors[0]);
+    document.documentElement.style.setProperty('--color2', colors[1]);
+    document.documentElement.style.setProperty('--color3', colors[2]);
+    document.documentElement.style.setProperty('--color4', colors[3]);
+    document.documentElement.style.setProperty('--color5', colors[4]);
+    document.documentElement.style.setProperty('--color6', colors[5]);
+    document.documentElement.style.setProperty('--color7', colors[6]);
+    document.documentElement.style.setProperty('--color8', colors[7]);
+    document.documentElement.style.setProperty('--color9', colors[8]);
+  } 
+    
+
+  // Cycle to the next set for the next tap
+  colorIndex = (colorIndex + 1) % colorSets.length;
+}
+
+
+
+
   </script>
 </body>
 </html>
