@@ -924,38 +924,45 @@
     //     METRONOME
     // =========================
     const metronomeButton = document.getElementById('metronomeBtn');
-    let isMetronomeOn = false;
-    let metronomeIntervalId = null;
+    let metronomeInterval = null;
+let isMetronomeOn = false;
 
-    function playMetronomeClick() {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+function playMetronomeClick() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
 
-      osc.type = "square";
-      osc.frequency.value = 1000; // Fréquence du "clic"
-      gain.gain.setValueAtTime(1, audioCtx.currentTime);
+    osc.type = "sine"; // Smooth, rounded sound
+    osc.frequency.value = 800; // Gentle percussive tic (try 600-1000 for variations)
 
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.1); // clic bref
-    }
+    filter.type = "lowpass"; 
+    filter.frequency.value = 1200; // Softens the tic sound
+    filter.Q.value = 1;
 
-    metronomeButton.addEventListener('click', () => {
-      if (!isMetronomeOn) {
-        // On active le métronome
-        isMetronomeOn = true;
-        metronomeButton.textContent = "STOP METRONOME";
-        // BPM ~120 => 500 ms
-        const interval = 500;
-        metronomeIntervalId = setInterval(playMetronomeClick, interval);
-      } else {
-        // On désactive
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime); // Lower initial volume
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); // Short decay (soft fade-out)
+
+    osc.connect(filter).connect(gain).connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+}
+
+// Toggle metronome on/off
+document.getElementById("metronomeBtn").addEventListener("click", () => {
+    if (isMetronomeOn) {
+        clearInterval(metronomeInterval);
+        metronomeInterval = null;
         isMetronomeOn = false;
-        metronomeButton.textContent = "METRONOME";
-        clearInterval(metronomeIntervalId);
-        metronomeIntervalId = null;
-      }
-    });
+        document.getElementById("metronomeBtn").textContent = "METRONOME";
+    } else {
+        playMetronomeClick(); // Initial click
+        metronomeInterval = setInterval(playMetronomeClick, 1000); // Beat every second
+        isMetronomeOn = true;
+        document.getElementById("metronomeBtn").textContent = "STOP METRONOME";
+    }
+});
+
   </script>
 </body>
 </html>
