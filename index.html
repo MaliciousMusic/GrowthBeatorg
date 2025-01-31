@@ -3,153 +3,107 @@
 <head>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <meta charset="UTF-8">
+  <!--
+    We limit zoom but still allow scrolling by using maximum-scale=1 and
+    'user-scalable=no'. We'll also handle double-tap in JS events below.
+  -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Sound Buttons (Web Audio API)</title>
-
-  <!-- Use a Google Font (Poppins) for a modern look -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap"
-    rel="stylesheet"
-  />
-
   <style>
-    /* =============================
-       GENERAL RESET & BODY
-    ============================== */
-
-
+    /* --- Styles Généraux --- */
     body {
-      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
       height: 100vh;
-      /* Let content scroll if it exceeds the screen height */
-      overflow-y: auto;
-      /* Dark gradient background */
-      background: linear-gradient(130deg, #030303 0%, #202020 100%);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
+      font-family: Arial, sans-serif;
+      background-color: #000000;
+       /* Ensure that if content exceeds screen size, we can scroll. */
+       overflow-y: scroll;
     }
 
-    /* =============================
-       MAIN CONTAINER & LAYOUT
-    ============================== */
+    /* --- Conteneur Principal --- */
     .main-flexbox {
       display: flex;
-      flex-direction: column;
-      height: 100vh; /* Keep full viewport height */
+      flex-direction: column; /* Empile les rangées verticalement */
+      height: 100vh; /* Occupe toute la hauteur de l'écran */
+      box-sizing: border-box;
+      background-color: #ffffff;
+    }
+
+    /* --- Rangées --- */
+    .row {
+      display: flex;
+      flex-direction: row; /* Colonnes alignées horizontalement */
+      flex: 1; /* Chaque rangée prend un espace égal */
+    }
+
+    /* --- Colonnes --- */
+    .column {
+      display: flex;
+      flex-direction: column; /* Empile les éléments verticalement */
+      flex: 1; /* Chaque colonne prend un espace égal dans la rangée */
+      background-color: #ffffff;
       box-sizing: border-box;
     }
 
-    .row {
-      display: flex;
-      flex-direction: row;
-      flex: 1;
-      /* spacing around columns */
-      margin: 10px;
-      gap: 10px;
-    }
-
-    .column {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      background: #1a1a1a;
-      border-radius: 8px;
-      overflow: hidden; /* so corners don’t “overflow” */
-    }
-
-    
-
-    /* =============================
-       BUTTONS INSIDE COLUMNS
-    ============================== */
+    /* --- Boutons --- */
     .button {
-      flex: 1;
-      border: none;
-      outline: none;
-      background: none;
+      flex: 1; /* Chaque bouton prend un espace égal dans sa colonne */
+      
+      text-align: right;
       font-size: 1rem;
-      font-weight: 500;
       color: #94b4ff;
       cursor: pointer;
-      transition: background-color 0.2s, transform 0.2s, color 0.2s;
-      padding: 10px;
-      text-align: right;
+      transition: transform 0.2s;
     }
-
     .button:hover {
-      background-color: rgba(255, 255, 255, 0.05);
-      transform: translateY(-1px);
+      transform: scale(1.05); /* Agrandir légèrement au survol */
     }
 
-    .button:active {
-      background-color: rgba(255, 255, 255, 0.1);
-      transform: scale(0.98);
-    }
+    /* --- Couleurs des boutons --- */
+    .blue { background-color: #0066cc; }
 
-    /* Selected/highlight style */
-    .selected {
-      background-color: #ff9800 !important; /* bright orange highlight */
-      color: #fff !important;
-      font-weight: 700;
-    }
-
-    /* =============================
-       LARGE UTILITY BUTTONS
-    ============================== */
+    /* Big Button Container */
     .big-button-container {
       display: flex;
-      justify-content: center;
+      justify-content: center; /* Center horizontally */
       align-items: center;
-      gap: 15px;
-      padding: 10px;
-      margin: 10px;
+      height: 50px; /* Adjust as needed */
+      width: 100%;
+      gap: 10px; /* space between buttons */
     }
 
+    /* Big Button Style */
     .big-button {
-      flex: 1;
-      border: 2px solid #0066cc;
-      border-radius: 8px;
-      background-color: #2f2f2f;
-      color: #94b4ff;
-      font-size: 1.1rem;
-      font-weight: 600;
+      background-color: white;
+      border: #0066cc;
+      color: #3021cd;
+      font-family: "Arial";
+      font-size: 1.2rem;
+      width: 100%; /* Take full width in the container */
       cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
-      padding: 12px 16px;
-      text-align: center;
+      transition: transform 0.2s, background-color 0.3s;
     }
     .big-button:hover {
-      background-color: #464646;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      transform: translateY(-2px);
-    }
-    .big-button:active {
-      transform: scale(0.97);
-    }
-    .big-button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+      background-color: #f0f0f0; /* Light gray hover effect */
+      transform: scale(1.05); /* Slightly enlarge on hover */
     }
 
-    /* =============================
-       FOOTER
-    ============================== */
-    footer {
-      background-color: #121212;
-      color: #b3b3b3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      text-align: center;
-      height: 50px;
-      padding: 5px;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+    /* Sélection visuelle */
+    .selected {
+      filter: brightness(-50%);
     }
-    footer p {
-      margin: 0;
+
+    footer {
+      height: 10vh;
+      background-color: #222; /* Dark background */
+      color: #fff; /* White text */
+      display: flex;
+      align-items: center; /* Center text vertically */
+      justify-content: center; /* Center text horizontally */
+      font-size: 1rem; /* Adjust font size as needed */
+      text-align: center;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow */
     }
   </style>
 </head>
@@ -1075,46 +1029,6 @@
       deleteCurrentLoop();
     }
   }, { passive: false });
-
-  let metronomeInterval = null;
-let isMetronomeOn = false;
-
-function playMetronomeClick() {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    const filter = audioCtx.createBiquadFilter();
-
-    osc.type = "sine"; // Smooth, rounded sound
-    osc.frequency.value = 800; // Gentle percussive tic (try 600-1000 for variations)
-
-    filter.type = "lowpass"; 
-    filter.frequency.value = 1200; // Softens the tic sound
-    filter.Q.value = 1;
-
-    gain.gain.setValueAtTime(0.4, audioCtx.currentTime); // Lower initial volume
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); // Short decay (soft fade-out)
-
-    osc.connect(filter).connect(gain).connect(audioCtx.destination);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.1);
-}
-
-// Toggle metronome on/off
-document.getElementById("metronomeBtn").addEventListener("click", () => {
-    if (isMetronomeOn) {
-        clearInterval(metronomeInterval);
-        metronomeInterval = null;
-        isMetronomeOn = false;
-        document.getElementById("metronomeBtn").textContent = "METRONOME";
-    } else {
-        playMetronomeClick(); // Initial click
-        metronomeInterval = setInterval(playMetronomeClick, 1000); // Beat every second
-        isMetronomeOn = true;
-        document.getElementById("metronomeBtn").textContent = "STOP METRONOME";
-    }
-});
-
   </script>
 </body>
 </html>
