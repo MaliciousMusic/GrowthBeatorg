@@ -17,39 +17,43 @@
       height: 100vh;
       font-family: Arial, sans-serif;
       background-color: #000000;
-       /* Ensure that if content exceeds screen size, we can scroll. */
-       overflow-y: scroll;
+      /* Ensure that if content exceeds screen size, we can scroll. */
+      overflow-y: scroll;
     }
 
-    /* --- Conteneur Principal --- */
+    /* --- Conteneur Principal (Flex container) --- */
     .main-flexbox {
       display: flex;
-      flex-direction: column; /* Empile les rangées verticalement */
-      height: 100vh; /* Occupe toute la hauteur de l'écran */
+      flex-direction: column; /* Stack rows vertically */
+      height: 100vh; /* Occupy full screen height */
       box-sizing: border-box;
       background-color: #ffffff;
     }
 
-    /* --- Rangées --- */
+    /* --- Rangées (Rows) --- */
     .row {
       display: flex;
-      flex-direction: row; /* Colonnes alignées horizontalement */
-      flex: 1; /* Chaque rangée prend un espace égal */
+      flex-direction: row; /* Columns aligned horizontally */
+      flex: 1; /* Each row can flex or be adjusted as needed */
     }
+
+    /* If a row shouldn't stretch, we can override with:
+       flex: 0 0 auto; and height: auto; 
+       We'll do this inline where needed.
+    */
 
     /* --- Colonnes --- */
     .column {
       display: flex;
-      flex-direction: column; /* Empile les éléments verticalement */
-      flex: 1; /* Chaque colonne prend un espace égal dans la rangée */
+      flex-direction: column; /* Stack items vertically */
+      flex: 1; /* Each column gets equal space in the row */
       background-color: #ffffff;
       box-sizing: border-box;
     }
 
-    /* --- Boutons --- */
+    /* --- Boutons (small buttons) --- */
     .button {
-      flex: 1; /* Chaque bouton prend un espace égal dans sa colonne */
-      
+      flex: 1; /* Each button fills available vertical space in its column */
       text-align: right;
       font-size: 1rem;
       color: #94b4ff;
@@ -57,7 +61,7 @@
       transition: transform 0.2s;
     }
     .button:hover {
-      transform: scale(1.05); /* Agrandir légèrement au survol */
+      transform: scale(1.05); /* Slight grow on hover */
     }
 
     /* --- Couleurs des boutons --- */
@@ -70,7 +74,7 @@
       align-items: center;
       height: 50px; /* Adjust as needed */
       width: 100%;
-      gap: 10px; /* space between buttons */
+      gap: 10px; /* space between big buttons */
     }
 
     /* Big Button Style */
@@ -86,10 +90,10 @@
     }
     .big-button:hover {
       background-color: #f0f0f0; /* Light gray hover effect */
-      transform: scale(1.05); /* Slightly enlarge on hover */
+      transform: scale(1.05);    /* Slightly enlarge on hover */
     }
 
-    /* Sélection visuelle */
+    /* Sélection visuelle (when in selection mode) */
     .selected {
       filter: brightness(-50%);
     }
@@ -105,306 +109,160 @@
       text-align: center;
       box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow */
     }
+
+    /* Sequencer Tools: in a row with flex, so it adapts to screens */
     .sequencer-tools {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    padding: 10px;
-    background-color: #222;
-    color: white;
-    border-bottom: 2px solid #0066cc;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      padding: 10px;
+      background-color: #222;
+      color: white;
+      border-bottom: 2px solid #0066cc;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      width: 100%;
+    }
 
-.sequencer-tools label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.9rem;
-}
+    .sequencer-tools label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.9rem;
+    }
 
-.sequencer-tools input {
-    width: 100px;
-}
+    .sequencer-tools input {
+      width: 100px;
+    }
 
   </style>
 </head>
 <body>
-    <div class="main-flexbox">
+  <div class="main-flexbox">
 
-        <!-- Première Rangée -->
-        <div class="row">
-    
-          <!-- Column 1: now "hihat" -->
-          <div class="column" data-sound="hihat">
-            <button id="sens_roue_1" class="button blue" data-frequency="1000">Uptempo</button>
-            <button id="sens_roue_2" class="button blue" data-frequency="2000">Rewind</button>
-          </div>
-    
-          <!-- Column 2: now "kick" -->
-          <div class="column" data-sound="kick">
-            <button id="start_number_dozen_00" class="button blue" data-frequency="20">0</button>
-            <button id="start_number_dozen_10" class="button blue" data-frequency="40">1</button>
-            <button id="start_number_dozen_20" class="button blue" data-frequency="60">2</button>
-            <button id="start_number_dozen_30" class="button blue" data-frequency="80">3</button>
-            <button id="start_number_unit_01" class="button blue" data-frequency="120">1</button>
-            <button id="start_number_unit_02" class="button blue" data-frequency="140">2</button>
-            <button id="start_number_unit_03" class="button blue" data-frequency="160">3</button>
-            <button id="start_number_unit_04" class="button blue" data-frequency="180">4</button>
-            <button id="start_number_unit_05" class="button blue" data-frequency="200">5</button>
-            <button id="start_number_unit_06" class="button blue" data-frequency="220">6</button>
-            <button id="start_number_unit_07" class="button blue" data-frequency="240">7</button>
-            <button id="start_number_unit_08" class="button blue" data-frequency="280.00">8</button>
-            <button id="start_number_unit_09" class="button blue" data-frequency="100">9</button>
-          </div>
-    
-          <!-- Column 3: now "distortion" -->
-          <div class="column" data-sound="distortion">
-            <button id="ball_exit_nord" class="button blue" data-frequency="100">0</button>
-            <button id="ball_exit_est" class="button blue" data-frequency="200">1</button>
-            <button id="ball_exit_sud" class="button blue" data-frequency="100">2</button>
-            <button id="ball_exit_ouest" class="button blue" data-frequency="100">3</button>
-            <button id="ball_exit_nord_est" class="button blue" data-frequency="300">4</button>
-            <button id="ball_exit_sud_est" class="button blue" data-frequency="500">5</button>
-            <button id="ball_exit_sud_ouest" class="button blue" data-frequency="600">6</button>
-            <button id="ball_exit_ouest" class="button blue" data-frequency="700">7</button>
-          </div>
-    
-          <!-- Column 4: now "bass" -->
-          <div class="column" data-sound="bass">
-            <button id="wheel_cc_0" class="button blue" data-frequency="100">0</button>
-            <button id="wheel_cc_1" class="button blue" data-frequency="200">1</button>
-            <button id="wheel_cc_2" class="button blue" data-frequency="300">2</button>
-            <button id="wheel_cc_3" class="button blue" data-frequency="400">3</button>
-            <button id="wheel_cc_4" class="button blue" data-frequency="500">4</button>
-            <button id="wheel_cc_5" class="button blue" data-frequency="600">5</button>
-            <button id="wheel_cc_6" class="button blue" data-frequency="700">6</button>
-            <button id="wheel_cc_7" class="button blue" data-frequency="800">7</button>
-            <button id="wheel_cc_8" class="button blue" data-frequency="900">8</button>
-            <button id="wheel_cc_9" class="button blue" data-frequency="1000">9</button>
-            <button id="wheel_cc_10" class="button blue" data-frequency="1100">10</button>
-            <button id="wheel_cc_11" class="button blue" data-frequency="1200">11</button>
-
-          </div>
-    
-          <!-- Column 5: now "snare" -->
-          <div class="column" data-sound="snare">
-            <button id="ball_speed1" class="button blue" data-frequency="123.25">1</button>
-            <button id="ball_speed2" class="button blue" data-frequency="587.33">2</button>
-            <button id="ball_speed3" class="button blue" data-frequency="659.25">3</button>
-          </div>
-    
-          <!-- Column 6: now "choir" -->
-          <div class="column" data-sound="choir">
-            <button id="end_number_dozen_00" class="button blue" data-frequency="440.00">0</button>
-            <button id="end_number_dozen_10" class="button blue" data-frequency="466.16">1</button>
-            <button id="end_number_dozen_20" class="button blue" data-frequency="493.88">2</button>
-            <button id="end_number_dozen_30" class="button blue" data-frequency="523.25">3</button>
-            <button id="end_number_unit_01" class="button blue" data-frequency="554.37">1</button>
-            <button id="end_number_unit_02" class="button blue" data-frequency="587.33">2</button>
-            <button id="end_number_unit_03" class="button blue" data-frequency="622.25">3</button>
-            <button id="end_number_unit_04" class="button blue" data-frequency="659.25">4</button>
-            <button id="end_number_unit_05" class="button blue" data-frequency="698.46">5</button>
-            <button id="end_number_unit_06" class="button blue" data-frequency="739.99">6</button>
-            <button id="end_number_unit_07" class="button blue" data-frequency="783.99">7</button>
-            <button id="end_number_unit_08" class="button blue" data-frequency="830.61">8</button>
-            <button id="end_number_unit_09" class="button blue" data-frequency="880.00">9</button>
-          </div>
-    
-        </div>
-    
-
-        <div class="sequencer-tools">
-            <label>Tempo: <input type="range" id="tempoControl" min="50" max="200" value="100"></label>
-            <label>Volume: <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5"></label>
-            <label>Pitch Shift: <input type="range" id="pitchControl" min="-12" max="12" value="0"></label>
-            <label>Reverb: <input type="range" id="reverbControl" min="0" max="1" step="0.01" value="0"></label>
-            <label>Echo (Delay): <input type="range" id="delayControl" min="0" max="1" step="0.01" value="0"></label>
-        </div>
-        
-
-       
-        <!-- RECORD and DELETE LOOP Buttons -->
-        <div class="big-button-container">
-          <button id="recordBtn" class="big-button">RECORD</button>
-          <button id="deleteBtn" class="big-button" disabled>DELETE LOOP</button>
-          <button id="metronomeBtn" class="big-button">METRONOME</button>
-
-        </div>
-    
-        <footer class="footer">
-          <p>© 2025 GrowthBeat. All Rights Reserved.</p>
-        </footer>
+    <!-- Première Rangée (sound buttons) -->
+    <div class="row">
+      <!-- Column 1: now "hihat" -->
+      <div class="column" data-sound="hihat">
+        <button id="sens_roue_1" class="button blue" data-frequency="1000">Uptempo</button>
+        <button id="sens_roue_2" class="button blue" data-frequency="2000">Rewind</button>
       </div>
 
-  <script>
+      <!-- Column 2: now "kick" -->
+      <div class="column" data-sound="kick">
+        <button id="start_number_dozen_00" class="button blue" data-frequency="20">0</button>
+        <button id="start_number_dozen_10" class="button blue" data-frequency="40">1</button>
+        <button id="start_number_dozen_20" class="button blue" data-frequency="60">2</button>
+        <button id="start_number_dozen_30" class="button blue" data-frequency="80">3</button>
+        <button id="start_number_unit_01" class="button blue" data-frequency="120">1</button>
+        <button id="start_number_unit_02" class="button blue" data-frequency="140">2</button>
+        <button id="start_number_unit_03" class="button blue" data-frequency="160">3</button>
+        <button id="start_number_unit_04" class="button blue" data-frequency="180">4</button>
+        <button id="start_number_unit_05" class="button blue" data-frequency="200">5</button>
+        <button id="start_number_unit_06" class="button blue" data-frequency="220">6</button>
+        <button id="start_number_unit_07" class="button blue" data-frequency="240">7</button>
+        <button id="start_number_unit_08" class="button blue" data-frequency="280.00">8</button>
+        <button id="start_number_unit_09" class="button blue" data-frequency="100">9</button>
+      </div>
 
+      <!-- Column 3: now "distortion" -->
+      <div class="column" data-sound="distortion">
+        <button id="ball_exit_nord" class="button blue" data-frequency="100">0</button>
+        <button id="ball_exit_est" class="button blue" data-frequency="200">1</button>
+        <button id="ball_exit_sud" class="button blue" data-frequency="100">2</button>
+        <button id="ball_exit_ouest" class="button blue" data-frequency="100">3</button>
+        <button id="ball_exit_nord_est" class="button blue" data-frequency="300">4</button>
+        <button id="ball_exit_sud_est" class="button blue" data-frequency="500">5</button>
+        <button id="ball_exit_sud_ouest" class="button blue" data-frequency="600">6</button>
+        <button id="ball_exit_ouest" class="button blue" data-frequency="700">7</button>
+      </div>
+
+      <!-- Column 4: now "bass" -->
+      <div class="column" data-sound="bass">
+        <button id="wheel_cc_0" class="button blue" data-frequency="100">0</button>
+        <button id="wheel_cc_1" class="button blue" data-frequency="200">1</button>
+        <button id="wheel_cc_2" class="button blue" data-frequency="300">2</button>
+        <button id="wheel_cc_3" class="button blue" data-frequency="400">3</button>
+        <button id="wheel_cc_4" class="button blue" data-frequency="500">4</button>
+        <button id="wheel_cc_5" class="button blue" data-frequency="600">5</button>
+        <button id="wheel_cc_6" class="button blue" data-frequency="700">6</button>
+        <button id="wheel_cc_7" class="button blue" data-frequency="800">7</button>
+        <button id="wheel_cc_8" class="button blue" data-frequency="900">8</button>
+        <button id="wheel_cc_9" class="button blue" data-frequency="1000">9</button>
+        <button id="wheel_cc_10" class="button blue" data-frequency="1100">10</button>
+        <button id="wheel_cc_11" class="button blue" data-frequency="1200">11</button>
+      </div>
+
+      <!-- Column 5: now "snare" -->
+      <div class="column" data-sound="snare">
+        <button id="ball_speed1" class="button blue" data-frequency="123.25">1</button>
+        <button id="ball_speed2" class="button blue" data-frequency="587.33">2</button>
+        <button id="ball_speed3" class="button blue" data-frequency="659.25">3</button>
+      </div>
+
+      <!-- Column 6: now "choir" -->
+      <div class="column" data-sound="choir">
+        <button id="end_number_dozen_00" class="button blue" data-frequency="440.00">0</button>
+        <button id="end_number_dozen_10" class="button blue" data-frequency="466.16">1</button>
+        <button id="end_number_dozen_20" class="button blue" data-frequency="493.88">2</button>
+        <button id="end_number_dozen_30" class="button blue" data-frequency="523.25">3</button>
+        <button id="end_number_unit_01" class="button blue" data-frequency="554.37">1</button>
+        <button id="end_number_unit_02" class="button blue" data-frequency="587.33">2</button>
+        <button id="end_number_unit_03" class="button blue" data-frequency="622.25">3</button>
+        <button id="end_number_unit_04" class="button blue" data-frequency="659.25">4</button>
+        <button id="end_number_unit_05" class="button blue" data-frequency="698.46">5</button>
+        <button id="end_number_unit_06" class="button blue" data-frequency="739.99">6</button>
+        <button id="end_number_unit_07" class="button blue" data-frequency="783.99">7</button>
+        <button id="end_number_unit_08" class="button blue" data-frequency="830.61">8</button>
+        <button id="end_number_unit_09" class="button blue" data-frequency="880.00">9</button>
+      </div>
+    </div>
+
+    <!-- New row for Sequencer Tools -->
+    <div class="row" style="flex: 0 0 auto; height: auto;">
+      <div class="sequencer-tools">
+        <label>Tempo:
+          <input type="range" id="tempoControl" min="50" max="200" value="100">
+        </label>
+        <label>Volume:
+          <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
+        </label>
+        <label>Pitch Shift:
+          <input type="range" id="pitchControl" min="-12" max="12" value="0">
+        </label>
+        <label>Reverb:
+          <input type="range" id="reverbControl" min="0" max="1" step="0.01" value="0">
+        </label>
+        <label>Echo (Delay):
+          <input type="range" id="delayControl" min="0" max="1" step="0.01" value="0">
+        </label>
+      </div>
+    </div>
+
+    <!-- RECORD and DELETE LOOP Buttons (another row) -->
+    <div class="row" style="flex: 0 0 auto; height: auto;">
+      <div class="big-button-container">
+        <button id="recordBtn" class="big-button">RECORD</button>
+        <button id="deleteBtn" class="big-button" disabled>DELETE LOOP</button>
+        <button id="metronomeBtn" class="big-button">METRONOME</button>
+      </div>
+    </div>
+
+    <!-- Footer row -->
+    <div class="row" style="flex: 0 0 auto; height: auto;">
+      <footer class="footer">
+        <p>© 2025 GrowthBeat. All Rights Reserved.</p>
+      </footer>
+    </div>
+
+  </div> <!-- end .main-flexbox -->
+
+  <script>
     const SUPABASE_URL = "https://ixthgaoizmbuqlapgked.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4dGhnYW9pem1idXFsYXBna2VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgwODIwNjcsImV4cCI6MjA1MzY1ODA2N30.uBvoKtSOYjL03sNr_lG9re3V2f20IOn-pg1WBgofFew";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 3) Test console
-  console.log("supabaseClient:", supabaseClient);
-
-  function collectSelectedData() {
-  // 1) Déclare les variables qu'on veut envoyer en base
-  let sens_roue = false;  // boolean: si c'est le bouton #sens_roue_1 ou #sens_roue_2
-  let start_number_dozen = 0; // peut valoir 0,10,20,30
-  let start_number_unit = 0;  // peut valoir 0..9
-  let start_number = 0;       // somme de dozen + unit
-
-  let ball_exit = "";   // "nord", "sud", "est", ...
-  let wheel_cc = "";    // "nord", "sud", "est", ...
-  let ball_speed = 0;   // 0..3
-  let end_number_dozen = 0;
-  let end_number_unit = 0;
-  let end_number = 0;
-
-  // -------- sens_roue (boolean) --------
-  if (document.getElementById("sens_roue_1").classList.contains("selected")) {
-    sens_roue = true;
-  } else if (document.getElementById("sens_roue_2").classList.contains("selected")) {
-    sens_roue = false;
-  }
-  // On part du principe qu’au moins l’un des deux est sélectionné.
-  // Sinon, sens_roue restera false par défaut.
-
-  // -------- start_number_dozen --------
-  if (document.getElementById("start_number_dozen_00").classList.contains("selected")) {
-    start_number_dozen = 0;
-  } else if (document.getElementById("start_number_dozen_10").classList.contains("selected")) {
-    start_number_dozen = 10;
-  } else if (document.getElementById("start_number_dozen_20").classList.contains("selected")) {
-    start_number_dozen = 20;
-  } else if (document.getElementById("start_number_dozen_30").classList.contains("selected")) {
-    start_number_dozen = 30;
-  }
-
-  // -------- start_number_unit --------
-  if (document.getElementById("start_number_unit_01").classList.contains("selected")) {
-    start_number_unit = 1;
-  } else if (document.getElementById("start_number_unit_02").classList.contains("selected")) {
-    start_number_unit = 2;
-  } else if (document.getElementById("start_number_unit_03").classList.contains("selected")) {
-    start_number_unit = 3;
-  } else if (document.getElementById("start_number_unit_04").classList.contains("selected")) {
-    start_number_unit = 4;
-  } else if (document.getElementById("start_number_unit_05").classList.contains("selected")) {
-    start_number_unit = 5;
-  } else if (document.getElementById("start_number_unit_06").classList.contains("selected")) {
-    start_number_unit = 6;
-  } else if (document.getElementById("start_number_unit_07").classList.contains("selected")) {
-    start_number_unit = 7;
-  } else if (document.getElementById("start_number_unit_08").classList.contains("selected")) {
-    start_number_unit = 8;
-  } else if (document.getElementById("start_number_unit_09").classList.contains("selected")) {
-    start_number_unit = 9;
-  }
-  // somme
-  start_number = start_number_dozen + start_number_unit;
-
-  // -------- ball_exit --------
-  if (document.getElementById("ball_exit_nord").classList.contains("selected")) {
-    ball_exit = "nord";
-  } else if (document.getElementById("ball_exit_est").classList.contains("selected")) {
-    ball_exit = "est";
-  } else if (document.getElementById("ball_exit_sud").classList.contains("selected")) {
-    ball_exit = "sud";
-  } else if (document.getElementById("ball_exit_ouest").classList.contains("selected")) {
-    ball_exit = "ouest";
-  } else if (document.getElementById("ball_exit_nord_est").classList.contains("selected")) {
-    ball_exit = "nord_est";
-  } else if (document.getElementById("ball_exit_sud_est").classList.contains("selected")) {
-    ball_exit = "sud_est";
-  } else if (document.getElementById("ball_exit_sud_ouest").classList.contains("selected")) {
-    ball_exit = "sud_ouest";
-  } else if (document.getElementById("ball_exit_ouest").classList.contains("selected")) {
-    // tu as deux "ouest" (ball_exit_ouest) dans le HTML, 
-    // mais on va considérer que c’est la même direction
-    ball_exit = "ouest";
-  }
-
-  // -------- wheel_cc --------
-  if (document.getElementById("wheel_cc_0").classList.contains("selected")) {
-    wheel_cc = "0";
-  } else if (document.getElementById("wheel_cc_1").classList.contains("selected")) {
-    wheel_cc = "1";
-  } else if (document.getElementById("wheel_cc_2").classList.contains("selected")) {
-    wheel_cc = "2";
-  } else if (document.getElementById("wheel_cc_3").classList.contains("selected")) {
-    wheel_cc = "3";
-  } else if (document.getElementById("wheel_cc_4").classList.contains("selected")) {
-    wheel_cc = "4";
-  } else if (document.getElementById("wheel_cc_5").classList.contains("selected")) {
-    wheel_cc = "5";
-  } else if (document.getElementById("wheel_cc_6").classList.contains("selected")) {
-    wheel_cc = "6";
-  } else if (document.getElementById("wheel_cc_7").classList.contains("selected")) {
-    wheel_cc = "7"; 
-} else if (document.getElementById("wheel_cc_8").classList.contains("selected")) {
-    wheel_cc = "8";
-  } else if (document.getElementById("wheel_cc_9").classList.contains("selected")) {
-    wheel_cc = "9";
-  } else if (document.getElementById("wheel_cc_10").classList.contains("selected")) {
-    wheel_cc = "10";
-  } else if (document.getElementById("wheel_cc_11").classList.contains("selected")) {
-    wheel_cc = "11"; 
-  }
-
-  // -------- ball_speed --------
-  if (document.getElementById("ball_speed1").classList.contains("selected")) {
-    ball_speed = 1;
-  } else if (document.getElementById("ball_speed2").classList.contains("selected")) {
-    ball_speed = 2;
-  } else if (document.getElementById("ball_speed3").classList.contains("selected")) {
-    ball_speed = 3;
-  }
-  // si rien sélectionné, ball_speed reste 0
-
-  // -------- end_number_dozen --------
-  if (document.getElementById("end_number_dozen_00").classList.contains("selected")) {
-    end_number_dozen = 0;
-  } else if (document.getElementById("end_number_dozen_10").classList.contains("selected")) {
-    end_number_dozen = 10;
-  } else if (document.getElementById("end_number_dozen_20").classList.contains("selected")) {
-    end_number_dozen = 20;
-  } else if (document.getElementById("end_number_dozen_30").classList.contains("selected")) {
-    end_number_dozen = 30;
-  }
-
-  // -------- end_number_unit --------
-  if (document.getElementById("end_number_unit_01").classList.contains("selected")) {
-    end_number_unit = 1;
-  } else if (document.getElementById("end_number_unit_02").classList.contains("selected")) {
-    end_number_unit = 2;
-  } else if (document.getElementById("end_number_unit_03").classList.contains("selected")) {
-    end_number_unit = 3;
-  } else if (document.getElementById("end_number_unit_04").classList.contains("selected")) {
-    end_number_unit = 4;
-  } else if (document.getElementById("end_number_unit_05").classList.contains("selected")) {
-    end_number_unit = 5;
-  } else if (document.getElementById("end_number_unit_06").classList.contains("selected")) {
-    end_number_unit = 6;
-  } else if (document.getElementById("end_number_unit_07").classList.contains("selected")) {
-    end_number_unit = 7;
-  } else if (document.getElementById("end_number_unit_08").classList.contains("selected")) {
-    end_number_unit = 8;
-  } else if (document.getElementById("end_number_unit_09").classList.contains("selected")) {
-    end_number_unit = 9;
-  }
-  end_number = end_number_dozen + end_number_unit;
-
-  // 2) On retourne un objet (une ligne) prêt à être inséré en BDD
-  return {
-    sens_roue,
-    start_number,
-    ball_exit,
-    wheel_cc,
-    ball_speed,
-    end_number
-  };
-}
-
+    console.log("supabaseClient:", supabaseClient);
 
     // Prompt user for a username
     let username = null;
@@ -412,28 +270,49 @@
       username = prompt("Enter your username:");
     });
 
-    // --- Création du contexte audio ---
+    // --- Create ONE AudioContext globally ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // --- Variables d'état globales ---
-    let isRecording = false;                // Indique si l'enregistrement est en cours
-    let recordedLayers = [];               // Tableau contenant toutes les couches (layers) enregistrées
-    let currentLayer = [];                 // Tableau temporaire pour la couche en cours d'enregistrement
-    let playbackTimeouts = [];             // Tableau des ID de timeout pour la lecture en boucle
+    // === Global Vars ===
+    let isRecording = false;      // Is recording in progress
+    let recordedLayers = [];      // Array of recorded layers
+    let currentLayer = [];        // Current layer being recorded
+    let playbackTimeouts = [];    // Timeout IDs for loop playback
+    let activeNotes = new Map();  // Notes started while recording
+    const activeOscillators = new Map(); // For continuous press
 
-    // Map for notes that start during recording
-    let activeNotes = new Map();
+    let selectionMode = false;   // Agent33 mode
+    let selectedButtons = new Set();
+    let holdTimeout;
 
-    // Map for active oscillators (one per button) to properly stop each.
-    const activeOscillators = new Map();
+    // === EFFECT NODES (for global controls) ===
+    const masterGain = audioCtx.createGain();
+    const reverb = audioCtx.createConvolver();
+    const delay = audioCtx.createDelay();
 
-    let selectionMode = false;             // Mode sélection
-    let selectedButtons = new Set();       // Ensemble des boutons actuellement sélectionnés
-    let holdTimeout;                       // ID du timeout pour le passage en mode sélection après un appui long
+    // Connect effect chain: oscillator → delay → reverb → masterGain → destination
+    delay.connect(reverb);
+    reverb.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
 
-    //===========================
-    //    NEW SOUND FUNCTIONS
-    //===========================
+    // === Initialize default values ===
+    masterGain.gain.value = 0.5;       // volumeControl default
+    delay.delayTime.value = 0;         // delayControl default
+    // We'll load a real impulse response for reverb below
+
+    // === Load an impulse response for Reverb (replace with your own URL) ===
+    fetch("https://www.myserver.com/impulse-response.wav")
+      .then(response => response.arrayBuffer())
+      .then(data => audioCtx.decodeAudioData(data))
+      .then(buffer => {
+        reverb.buffer = buffer;
+      })
+      .catch(err => {
+        console.warn("Could not load impulse response for reverb:", err);
+      });
+
+    // === Sound Functions (One AudioContext) ===
+
     // 1) 808-like Bass
     function play808Sound(frequency) {
       const osc = audioCtx.createOscillator();
@@ -445,7 +324,8 @@
       gain.gain.setValueAtTime(1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
 
-      osc.connect(gain).connect(audioCtx.destination);
+      // Connect to effect chain
+      osc.connect(gain).connect(delay);
 
       osc.start(audioCtx.currentTime);
       osc.stop(audioCtx.currentTime + 1);
@@ -461,7 +341,7 @@
       osc.type = 'triangle';
       osc.frequency.value = frequency;
 
-      // Simple distortion curve
+      // Simple distortion
       waveShaper.curve = new Float32Array([1, 0.5, -0.5, 0]);
       waveShaper.oversample = '4x';
 
@@ -472,85 +352,83 @@
       gain.gain.setValueAtTime(1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
 
-      osc.connect(waveShaper).connect(filter).connect(gain).connect(audioCtx.destination);
+      // Connect chain: osc -> waveShaper -> filter -> gain -> delay
+      osc.connect(waveShaper).connect(filter).connect(gain).connect(delay);
+
       osc.start();
       osc.stop(audioCtx.currentTime + 0.5);
     }
 
     // 3) Choir
     function playChoir(frequency) {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      // We'll use the global audioCtx, no new context
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(1.0, audioCtx.currentTime); // Instant attack
+      gain.gain.setTargetAtTime(0.9, audioCtx.currentTime + 0.3, 0.1); // hold
+      gain.gain.setTargetAtTime(0.001, audioCtx.currentTime + 2, 0.7); // fade
 
-    const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(1.0, audioCtx.currentTime); // Instant attack
-    gain.gain.setTargetAtTime(0.9, audioCtx.currentTime + 0.3, 0.1); // Hold volume briefly
-    gain.gain.setTargetAtTime(0.001, audioCtx.currentTime + 2, 0.7); // Decay naturally
-
-    // Function to create an oscillator with vibrato
-    function createOscillator(freq, detune = 0, vibratoDepth = 2) {
+      // Create multiple sawtooths with vibrato
+      function createOscillator(freq, detune = 0, vibratoDepth = 2) {
         const osc = audioCtx.createOscillator();
-        osc.type = "sawtooth"; // Richer harmonics
+        osc.type = "sawtooth";
         osc.frequency.value = freq + detune;
 
-        // Vibrato LFO (Slow Pitch Modulation)
+        // Vibrato LFO
         const vibrato = audioCtx.createOscillator();
         vibrato.type = "sine";
-        vibrato.frequency.value = 3.5; // 3.5 Hz vibrato rate (random)
-        
+        vibrato.frequency.value = 3.5; 
+
         const vibratoGain = audioCtx.createGain();
-        vibratoGain.gain.value = vibratoDepth; // Vibrato depth
+        vibratoGain.gain.value = vibratoDepth; 
         vibrato.connect(vibratoGain).connect(osc.frequency);
 
         vibrato.start();
         osc.start();
 
         return { osc, vibrato };
-    }
+      }
 
-    // Create multiple voices
-    const voices = [
-        createOscillator(frequency, 0),       // Main frequency
-        createOscillator(frequency * 0.98, 0),// Slightly lower detune
-        createOscillator(frequency * 1.02, 0),// Slightly higher detune
-        createOscillator(frequency / 2, -5),  // Low octave drone
-        createOscillator(frequency / 2.02, 5),// Low drone variation
-        createOscillator(frequency * 2, 10),  // Higher octave for fullness
-    ];
+      const voices = [
+        createOscillator(frequency),
+        createOscillator(frequency * 0.98),
+        createOscillator(frequency * 1.02),
+        createOscillator(frequency / 2, -5),
+        createOscillator(frequency / 2.02, 5),
+        createOscillator(frequency * 2, 10),
+      ];
 
-    // Create multiple bandpass filters (Formants for "Aah" vowel)
-    function createFormantFilter(freq) {
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = "bandpass";
-        filter.frequency.value = freq;
-        filter.Q.value = 8; // Sharp formant filtering
-        return filter;
-    }
+      // Create formant filters
+      function createFormantFilter(freq) {
+        const f = audioCtx.createBiquadFilter();
+        f.type = "bandpass";
+        f.frequency.value = freq;
+        f.Q.value = 8;
+        return f;
+      }
+      const formants = [
+        createFormantFilter(500),
+        createFormantFilter(750),
+        createFormantFilter(1100),
+        createFormantFilter(2500),
+      ];
 
-    const formantFilters = [
-        createFormantFilter(500),  // Deep vowel base
-        createFormantFilter(750),  // Mid vowel shape
-        createFormantFilter(1100), // Brighter vocal sound
-        createFormantFilter(2500), // Upper vowel clarity
-    ];
-
-    // Connect all voices through the formant filters
-    voices.forEach(({ osc }) => {
-        formantFilters.forEach((filter) => {
-            osc.connect(filter).connect(gain);
+      // Connect all voices through each formant -> gain -> delay
+      voices.forEach(({ osc }) => {
+        formants.forEach((f) => {
+          osc.connect(f).connect(gain);
         });
-    });
+      });
 
-    gain.connect(audioCtx.destination);
+      gain.connect(delay);
 
-    // Stop after 2.5 seconds
-    setTimeout(() => {
+      // Stop after 300 ms
+      setTimeout(() => {
         voices.forEach(({ osc, vibrato }) => {
-            osc.stop();
-            vibrato.stop();
+          osc.stop();
+          vibrato.stop();
         });
-    }, 300);
-}
-
+      }, 300);
+    }
 
     // 4) Synth1: Warm Pad with Detune
     function playSynth1(frequency) {
@@ -560,14 +438,13 @@
 
       osc1.type = 'sawtooth';
       osc1.frequency.value = frequency;
-
       osc2.type = 'sawtooth';
       osc2.frequency.value = frequency * 1.01;
 
       gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
 
-      osc1.connect(gain).connect(audioCtx.destination);
+      osc1.connect(gain).connect(delay);
       osc2.connect(gain);
 
       osc1.start();
@@ -590,7 +467,7 @@
       gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
 
-      osc1.connect(gain).connect(audioCtx.destination);
+      osc1.connect(gain).connect(delay);
       osc2.connect(gain);
 
       osc1.start();
@@ -618,8 +495,9 @@
       gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
 
-      osc1.connect(filter).connect(gain).connect(audioCtx.destination);
+      osc1.connect(filter);
       osc2.connect(filter);
+      filter.connect(gain).connect(delay);
 
       osc1.start();
       osc2.start();
@@ -627,7 +505,7 @@
       osc2.stop(audioCtx.currentTime + 2);
     }
 
-    // === Play function based on column data-sound ===
+    // === Decides which sound function to call ===
     function playColumnSoundStart(column, frequency) {
       const soundType = column.getAttribute('data-sound');
       switch (soundType) {
@@ -650,17 +528,15 @@
           playSynth6(frequency);
           break;
         default:
-          // Fallback
           playChoir(frequency);
           break;
       }
     }
 
-    // A specialized function to schedule note playback
+    // === Scheduling playback with offsets ===
     function scheduleNotePlayback(column, frequency, offset, duration) {
       const soundType = column.getAttribute('data-sound');
-
-      // If it's one of our "one-shot" sounds:
+      // For one-shot custom sounds:
       if (
         soundType === 'kick' ||
         soundType === 'distortion' ||
@@ -674,16 +550,16 @@
         }, offset);
         playbackTimeouts.push(startTimeout);
       } else {
-        // Else fallback to older approach
+        // Fallback to a basic sine note
         const startTimeout = setTimeout(() => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
-
           osc.type = 'sine';
           osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
           gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
 
-          osc.connect(gain).connect(audioCtx.destination);
+          // Route to effect chain
+          osc.connect(gain).connect(delay);
           osc.start();
 
           const stopTimeout = setTimeout(() => {
@@ -696,108 +572,89 @@
       }
     }
 
-    // Relecture de toutes les couches enregistrées en boucle
+    // === Replay recorded layers in loop ===
     function playRecordedLayers() {
-      // Nettoie les anciens timeouts
-      playbackTimeouts.forEach(timeout => clearTimeout(timeout));
+      // Clear old timeouts
+      playbackTimeouts.forEach(t => clearTimeout(t));
       playbackTimeouts = [];
 
       if (!recordedLayers.length) return;
 
-      // Calcule la durée max pour savoir quand relancer la boucle
+      // Find total max duration
       const maxDuration = Math.max(
         ...recordedLayers.flatMap(layer =>
           layer.map(entry => (entry.startTime + entry.duration) - layer[0].startTime)
         )
       );
 
-      // Planifie la lecture de chaque layer
+      // Schedule each layer
       recordedLayers.forEach(layer => {
-        const layerStart = layer[0].startTime; // first note's start time
+        const layerStart = layer[0].startTime; 
         layer.forEach(entry => {
-          // offset from earliest note in this layer
           const offset = entry.startTime - layerStart;
-          scheduleNotePlayback(
-            entry.column,
-            entry.frequency,
-            offset,
-            entry.duration
-          );
+          scheduleNotePlayback(entry.column, entry.frequency, offset, entry.duration);
         });
       });
 
-      // Relance la boucle après la durée max + 500ms
+      // Loop again after maxDuration + 500ms
       const loopTimeout = setTimeout(playRecordedLayers, maxDuration + 500);
       playbackTimeouts.push(loopTimeout);
     }
 
-    // --- Double-tap zoom prevention while allowing scroll ---
+    // === Double-tap zoom prevention while allowing scroll ===
     let lastTouchEnd = 0;
-    document.addEventListener(
-      'touchstart',
-      (event) => {
-        if (event.touches.length > 1) {
-          event.preventDefault();
-        }
-      },
-      { passive: false }
-    );
+    document.addEventListener('touchstart', event => {
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
+    }, { passive: false });
 
-    document.addEventListener(
-      'touchend',
-      (event) => {
-        const now = new Date().getTime();
-        // If double-tap in under 300ms, prevent zoom
-        if (now - lastTouchEnd <= 300) {
-          event.preventDefault();
-        }
-        lastTouchEnd = now;
-      },
-      { passive: false }
-    );
+    document.addEventListener('touchend', event => {
+      const now = new Date().getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
 
-    // Récupère les boutons
+    // === Handle button interactions ===
     const buttons = document.querySelectorAll('.button');
 
-    // --- Touch and Click events for each button ---
     buttons.forEach(button => {
       const column = button.closest('.column');
 
-      // Common logic for button selection or playback
       function handleButtonSelection() {
         if (selectionMode) {
-          // In selection mode, highlight or unhighlight
+          // Agent33 selection mode
           const allColumns = Array.from(document.querySelectorAll('.column'));
           const columnIndex = allColumns.indexOf(column);
 
-          // Example selection rule: if column is 1 or 5, allow up to 2 selections
+          // If column is #1 or #5 => allow up to 2 selections
           if (columnIndex === 1 || columnIndex === 5) {
-            const buttonsInThisColumn = column.querySelectorAll('.button');
-            const alreadySelected = Array.from(buttonsInThisColumn)
+            const buttonsInColumn = column.querySelectorAll('.button');
+            const alreadySelected = Array.from(buttonsInColumn)
               .filter(b => b.classList.contains('selected'));
 
             if (button.classList.contains('selected')) {
-              // Deselect if clicked/touched again
+              // Deselect
               button.classList.remove('selected');
               selectedButtons.delete(button);
             } else {
-              // Not selected yet
               if (alreadySelected.length < 2) {
                 button.classList.add('selected');
                 selectedButtons.add(button);
               } else {
-                // Already have 2 => remove them
+                // Remove old selections, select the new one
                 for (const b of alreadySelected) {
                   b.classList.remove('selected');
                   selectedButtons.delete(b);
                 }
-                // Select the new one
                 button.classList.add('selected');
                 selectedButtons.add(button);
               }
             }
           } else {
-            // Single selection columns
+            // Single selection for other columns
             const buttonsInColumn = column.querySelectorAll('.button');
             buttonsInColumn.forEach(btn => {
               btn.classList.remove('selected');
@@ -812,28 +669,27 @@
             }
           }
         } else {
-          // Normal (recording) mode => one-shot trigger
+          // Normal mode => immediate sound
           const frequency = parseFloat(button.getAttribute('data-frequency'));
           playColumnSoundStart(column, frequency);
         }
       }
 
-      // Handle touchstart for *continuous* press (osc on) in record mode
+      // Touchstart for continuous press (if recording)
       button.addEventListener('touchstart', e => {
         e.preventDefault();
-
         if (!selectionMode) {
           const frequency = parseFloat(button.getAttribute('data-frequency'));
           const osc = audioCtx.createOscillator();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-          osc.connect(audioCtx.destination);
+
+          // Route to effect chain
+          osc.connect(delay);
           osc.start();
 
-          // Store oscillator for this button
           activeOscillators.set(button, osc);
 
-          // If we're recording, start recording the note
           if (isRecording) {
             activeNotes.set(button, {
               column,
@@ -845,323 +701,429 @@
         }
       });
 
-      // Handle touchend for *continuous* press
+      // Touchend => stop oscillator
       button.addEventListener('touchend', e => {
         e.preventDefault();
-
-        // Stop the oscillator
         const osc = activeOscillators.get(button);
         if (osc) {
           osc.stop();
           osc.disconnect();
           activeOscillators.delete(button);
         }
-
-        // Finalize note recording
+        // Finalize note if recording
         if (isRecording && activeNotes.has(button)) {
           const noteObj = activeNotes.get(button);
-          const endTime = performance.now();
-          noteObj.duration = endTime - noteObj.startTime;
+          noteObj.duration = performance.now() - noteObj.startTime;
           currentLayer.push(noteObj);
           activeNotes.delete(button);
         }
       });
 
-      // Handle touchcancel for safety
+      // Safety: touchcancel
       button.addEventListener('touchcancel', e => {
         e.preventDefault();
-
-        // Stop the oscillator
         const osc = activeOscillators.get(button);
         if (osc) {
           osc.stop();
           osc.disconnect();
           activeOscillators.delete(button);
         }
-
-        // Finalize note recording if needed
         if (isRecording && activeNotes.has(button)) {
           const noteObj = activeNotes.get(button);
-          const endTime = performance.now();
-          noteObj.duration = endTime - noteObj.startTime;
+          noteObj.duration = performance.now() - noteObj.startTime;
           currentLayer.push(noteObj);
           activeNotes.delete(button);
         }
       });
 
-      // Click for selection or immediate playback
+      // Click => selection or immediate playback
       button.addEventListener('click', handleButtonSelection);
 
-      // Add a second touchstart for selection logic (prevent default properly)
+      // Also handle selection mode on touchstart
       button.addEventListener('touchstart', e => {
         e.preventDefault();
         handleButtonSelection();
       }, { passive: false });
     });
 
-    // Big button references
+    // === Big Button references ===
     const recordButton = document.getElementById('recordBtn');
     const deleteButton = document.getElementById('deleteBtn');
 
-    // Common function to handle record button logic
-    function handleRecordButtonLogic() {
-  if (!selectionMode) {
-    // -- MODE ENREGISTREMENT NORMAL --
-    if (isRecording) {
-      // Stop recording
-      isRecording = false;
-      // Finalize all active notes
-      activeNotes.forEach((noteObj, btn) => {
-        noteObj.duration = performance.now() - noteObj.startTime;
-        currentLayer.push(noteObj);
-      });
-      activeNotes.clear();
+    // === Collect form data for DB insertion ===
+    function collectSelectedData() {
+      let sens_roue = false;
+      let start_number_dozen = 0;
+      let start_number_unit = 0;
+      let start_number = 0;
+      let ball_exit = "";
+      let wheel_cc = "";
+      let ball_speed = 0;
+      let end_number_dozen = 0;
+      let end_number_unit = 0;
+      let end_number = 0;
 
-      if (currentLayer.length) {
-        recordedLayers.push(currentLayer);
+      if (document.getElementById("sens_roue_1").classList.contains("selected")) {
+        sens_roue = true;
+      } else if (document.getElementById("sens_roue_2").classList.contains("selected")) {
+        sens_roue = false;
       }
-      recordButton.textContent = 'RECORD';
 
-      // Playback if we have layers recorded
-      if (recordedLayers.length > 0) {
-        playRecordedLayers();
+      if (document.getElementById("start_number_dozen_00").classList.contains("selected")) {
+        start_number_dozen = 0;
+      } else if (document.getElementById("start_number_dozen_10").classList.contains("selected")) {
+        start_number_dozen = 10;
+      } else if (document.getElementById("start_number_dozen_20").classList.contains("selected")) {
+        start_number_dozen = 20;
+      } else if (document.getElementById("start_number_dozen_30").classList.contains("selected")) {
+        start_number_dozen = 30;
       }
-    } else {
-      // Start recording
-      isRecording = true;
-      currentLayer = [];
-      recordButton.textContent = 'STOP RECORDING';
+
+      if (document.getElementById("start_number_unit_01").classList.contains("selected")) {
+        start_number_unit = 1;
+      } else if (document.getElementById("start_number_unit_02").classList.contains("selected")) {
+        start_number_unit = 2;
+      } else if (document.getElementById("start_number_unit_03").classList.contains("selected")) {
+        start_number_unit = 3;
+      } else if (document.getElementById("start_number_unit_04").classList.contains("selected")) {
+        start_number_unit = 4;
+      } else if (document.getElementById("start_number_unit_05").classList.contains("selected")) {
+        start_number_unit = 5;
+      } else if (document.getElementById("start_number_unit_06").classList.contains("selected")) {
+        start_number_unit = 6;
+      } else if (document.getElementById("start_number_unit_07").classList.contains("selected")) {
+        start_number_unit = 7;
+      } else if (document.getElementById("start_number_unit_08").classList.contains("selected")) {
+        start_number_unit = 8;
+      } else if (document.getElementById("start_number_unit_09").classList.contains("selected")) {
+        start_number_unit = 9;
+      }
+      start_number = start_number_dozen + start_number_unit;
+
+      if (document.getElementById("ball_exit_nord").classList.contains("selected")) {
+        ball_exit = "nord";
+      } else if (document.getElementById("ball_exit_est").classList.contains("selected")) {
+        ball_exit = "est";
+      } else if (document.getElementById("ball_exit_sud").classList.contains("selected")) {
+        ball_exit = "sud";
+      } else if (document.getElementById("ball_exit_ouest").classList.contains("selected")) {
+        ball_exit = "ouest";
+      } else if (document.getElementById("ball_exit_nord_est").classList.contains("selected")) {
+        ball_exit = "nord_est";
+      } else if (document.getElementById("ball_exit_sud_est").classList.contains("selected")) {
+        ball_exit = "sud_est";
+      } else if (document.getElementById("ball_exit_sud_ouest").classList.contains("selected")) {
+        ball_exit = "sud_ouest";
+      } else if (document.getElementById("ball_exit_ouest").classList.contains("selected")) {
+        ball_exit = "ouest";
+      }
+
+      if (document.getElementById("wheel_cc_0").classList.contains("selected")) {
+        wheel_cc = "0";
+      } else if (document.getElementById("wheel_cc_1").classList.contains("selected")) {
+        wheel_cc = "1";
+      } else if (document.getElementById("wheel_cc_2").classList.contains("selected")) {
+        wheel_cc = "2";
+      } else if (document.getElementById("wheel_cc_3").classList.contains("selected")) {
+        wheel_cc = "3";
+      } else if (document.getElementById("wheel_cc_4").classList.contains("selected")) {
+        wheel_cc = "4";
+      } else if (document.getElementById("wheel_cc_5").classList.contains("selected")) {
+        wheel_cc = "5";
+      } else if (document.getElementById("wheel_cc_6").classList.contains("selected")) {
+        wheel_cc = "6";
+      } else if (document.getElementById("wheel_cc_7").classList.contains("selected")) {
+        wheel_cc = "7";
+      } else if (document.getElementById("wheel_cc_8").classList.contains("selected")) {
+        wheel_cc = "8";
+      } else if (document.getElementById("wheel_cc_9").classList.contains("selected")) {
+        wheel_cc = "9";
+      } else if (document.getElementById("wheel_cc_10").classList.contains("selected")) {
+        wheel_cc = "10";
+      } else if (document.getElementById("wheel_cc_11").classList.contains("selected")) {
+        wheel_cc = "11";
+      }
+
+      if (document.getElementById("ball_speed1").classList.contains("selected")) {
+        ball_speed = 1;
+      } else if (document.getElementById("ball_speed2").classList.contains("selected")) {
+        ball_speed = 2;
+      } else if (document.getElementById("ball_speed3").classList.contains("selected")) {
+        ball_speed = 3;
+      }
+
+      if (document.getElementById("end_number_dozen_00").classList.contains("selected")) {
+        end_number_dozen = 0;
+      } else if (document.getElementById("end_number_dozen_10").classList.contains("selected")) {
+        end_number_dozen = 10;
+      } else if (document.getElementById("end_number_dozen_20").classList.contains("selected")) {
+        end_number_dozen = 20;
+      } else if (document.getElementById("end_number_dozen_30").classList.contains("selected")) {
+        end_number_dozen = 30;
+      }
+
+      if (document.getElementById("end_number_unit_01").classList.contains("selected")) {
+        end_number_unit = 1;
+      } else if (document.getElementById("end_number_unit_02").classList.contains("selected")) {
+        end_number_unit = 2;
+      } else if (document.getElementById("end_number_unit_03").classList.contains("selected")) {
+        end_number_unit = 3;
+      } else if (document.getElementById("end_number_unit_04").classList.contains("selected")) {
+        end_number_unit = 4;
+      } else if (document.getElementById("end_number_unit_05").classList.contains("selected")) {
+        end_number_unit = 5;
+      } else if (document.getElementById("end_number_unit_06").classList.contains("selected")) {
+        end_number_unit = 6;
+      } else if (document.getElementById("end_number_unit_07").classList.contains("selected")) {
+        end_number_unit = 7;
+      } else if (document.getElementById("end_number_unit_08").classList.contains("selected")) {
+        end_number_unit = 8;
+      } else if (document.getElementById("end_number_unit_09").classList.contains("selected")) {
+        end_number_unit = 9;
+      }
+      end_number = end_number_dozen + end_number_unit;
+
+      return {
+        sens_roue,
+        start_number,
+        ball_exit,
+        wheel_cc,
+        ball_speed,
+        end_number
+      };
     }
 
-  } else {
-    // -- MODE SELECTION --
-    // 1) Récupère les infos précises (sens_roue, start_number, etc.)
-    const data = collectSelectedData();
-    console.log('Collected Data:', data);
+    // === Record button logic ===
+    function handleRecordButtonLogic() {
+      if (!selectionMode) {
+        // Normal recording mode
+        if (isRecording) {
+          // Stop
+          isRecording = false;
+          activeNotes.forEach((noteObj) => {
+            noteObj.duration = performance.now() - noteObj.startTime;
+            currentLayer.push(noteObj);
+          });
+          activeNotes.clear();
 
-    // 2) Insère dans ta table "resultat" (ou autre nom)
-    supabaseClient
-      .from("resultat")
-      .insert([ data ])
-      .then(response => {
-        console.log("Inserted to Supabase:", response);
-        // tu peux afficher un visuel si tu veux
-        recordButton.style.color = 'green';
-        setTimeout(() => {
-          recordButton.style.color = '';
-        }, 1000);
-      })
-      .catch(error => {
-        console.error("Erreur insertion Supabase:", error);
-      });
+          if (currentLayer.length) {
+            recordedLayers.push(currentLayer);
+          }
+          recordButton.textContent = 'RECORD';
 
-    // 3) Désélectionne tous les boutons pour repartir « propre »
-    selectedButtons.forEach(btn => btn.classList.remove('selected'));
-    selectedButtons.clear();
-  }
-}
-        // Unselect all after sending the data
+          // Playback if layers exist
+          if (recordedLayers.length > 0) {
+            playRecordedLayers();
+          }
+        } else {
+          // Start
+          isRecording = true;
+          currentLayer = [];
+          recordButton.textContent = 'STOP RECORDING';
+        }
+      } else {
+        // Selection mode => Insert into DB
+        const data = collectSelectedData();
+        console.log('Collected Data:', data);
+
+        supabaseClient
+          .from("resultat")
+          .insert([ data ])
+          .then(response => {
+            console.log("Inserted to Supabase:", response);
+            recordButton.style.color = 'green';
+            setTimeout(() => {
+              recordButton.style.color = '';
+            }, 1000);
+          })
+          .catch(error => {
+            console.error("Erreur insertion Supabase:", error);
+          });
+
+        // Reset selection
         selectedButtons.forEach(btn => btn.classList.remove('selected'));
         selectedButtons.clear();
+      }
 
-        // Simple confirmation visual
-        recordButton.style.color = 'green';
-        setTimeout(() => {
-          recordButton.style.color = '';
-        }, 1000);
-      
-    // Toggle selection mode on long press, but only if username === "Agent33"
+      // Quick visual flash
+      selectedButtons.forEach(btn => btn.classList.remove('selected'));
+      selectedButtons.clear();
+      recordButton.style.color = 'green';
+      setTimeout(() => {
+        recordButton.style.color = '';
+      }, 500);
+    }
+
+    // === Toggle selection mode with long press (only if username === "Agent33") ===
     function toggleSelectionMode() {
       if (username === "Agent33") {
         selectionMode = !selectionMode;
         recordButton.textContent = selectionMode
           ? 'RECORD AGAIN'
           : 'RECORD';
-        // Enable/disable delete button depending on mode
-        deleteButton.disabled = selectionMode; // always inactive in 2nd mode
+        deleteButton.disabled = selectionMode; // disable delete in selection mode
 
-        // If we exit selection mode, reset selection
         if (!selectionMode) {
+          // Exiting selection => reset
           selectedButtons.forEach(btn => btn.classList.remove('selected'));
           selectedButtons.clear();
         }
       } else {
-        // Show "browser doesn't support" error if username is wrong
         alert("Error: Your browser doesn't support advanced mode.");
       }
     }
 
-    // mousedown/touchstart => possible long press (2s) to toggle selectionMode
     recordButton.addEventListener('mousedown', () => {
       holdTimeout = setTimeout(() => {
         toggleSelectionMode();
       }, 2000);
     });
 
-    recordButton.addEventListener('touchstart', (e) => {
+    recordButton.addEventListener('touchstart', e => {
       e.preventDefault();
       holdTimeout = setTimeout(() => {
         toggleSelectionMode();
       }, 2000);
     }, { passive: false });
 
-    // mouseup/touchend => stop hold or do normal click
     recordButton.addEventListener('mouseup', () => {
       clearTimeout(holdTimeout);
       handleRecordButtonLogic();
     });
 
-    recordButton.addEventListener('touchend', (e) => {
+    recordButton.addEventListener('touchend', e => {
       e.preventDefault();
       clearTimeout(holdTimeout);
       handleRecordButtonLogic();
     }, { passive: false });
 
-    // mouseleave/touchcancel => cancel hold if leaving the button
     recordButton.addEventListener('mouseleave', () => {
       clearTimeout(holdTimeout);
     });
-
     recordButton.addEventListener('touchcancel', () => {
       clearTimeout(holdTimeout);
     });
 
-    /// DELETE LOOP BUTTON: Clears recorded layers and stops playback
-  function deleteCurrentLoop() {
-    // Stop any ongoing playback
-    playbackTimeouts.forEach(timeout => clearTimeout(timeout));
-    playbackTimeouts = [];
-    // Clear recorded layers
-    recordedLayers = [];
-    // Reset big button text if we were recording
-    if (isRecording) {
-      isRecording = false;
-      activeNotes.clear();
-      recordButton.textContent = 'RECORD';
+    // === DELETE LOOP BUTTON ===
+    function deleteCurrentLoop() {
+      // Stop any ongoing playback
+      playbackTimeouts.forEach(t => clearTimeout(t));
+      playbackTimeouts = [];
+      // Clear recorded layers
+      recordedLayers = [];
+      // Reset text if we were recording
+      if (isRecording) {
+        isRecording = false;
+        activeNotes.clear();
+        recordButton.textContent = 'RECORD';
+      }
+      currentLayer = [];
+      console.log("All loops deleted.");
     }
-    currentLayer = [];
-    console.log("All loops deleted.");
-  }
 
-  // 1) Existing "click" event
-  deleteButton.addEventListener('click', () => {
-    // If second mode is active, button should be disabled (handled by code),
-    // but we also check here:
-    if (!selectionMode) {
-      deleteCurrentLoop();
+    deleteButton.addEventListener('click', () => {
+      if (!selectionMode) {
+        deleteCurrentLoop();
+      }
+    });
+    deleteButton.addEventListener('touchend', e => {
+      e.preventDefault();
+      if (!selectionMode) {
+        deleteCurrentLoop();
+      }
+    }, { passive: false });
+
+    // === Metronome ===
+    let metronomeInterval = null;
+    let isMetronomeOn = false;
+
+    function playMetronomeClick() {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.type = "sine"; 
+      osc.frequency.value = 800; 
+      filter.type = "lowpass"; 
+      filter.frequency.value = 1200;
+      filter.Q.value = 1;
+
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+
+      // Route to effect chain as well?
+      osc.connect(filter).connect(gain).connect(masterGain);
+      // Or you can skip effects: .connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.1);
     }
-    // If in second mode, nothing happens because the button is disabled.
-  });
 
-  // 2) Add a "touchend" event to ensure mobile devices trigger this correctly
-  deleteButton.addEventListener('touchend', (e) => {
-    // Prevent default so it doesn’t conflict with click or other behaviors
-    e.preventDefault();
-    if (!selectionMode) {
-      deleteCurrentLoop();
-    }
-  }, { passive: false });
-
-  let metronomeInterval = null;
-let isMetronomeOn = false;
-
-function playMetronomeClick() {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    const filter = audioCtx.createBiquadFilter();
-
-    osc.type = "sine"; // Smooth, rounded sound
-    osc.frequency.value = 800; // Gentle percussive tic (try 600-1000 for variations)
-
-    filter.type = "lowpass"; 
-    filter.frequency.value = 1200; // Softens the tic sound
-    filter.Q.value = 1;
-
-    gain.gain.setValueAtTime(0.4, audioCtx.currentTime); // Lower initial volume
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); // Short decay (soft fade-out)
-
-    osc.connect(filter).connect(gain).connect(audioCtx.destination);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.1);
-}
-
-// Toggle metronome on/off
-document.getElementById("metronomeBtn").addEventListener("click", () => {
-    if (isMetronomeOn) {
+    document.getElementById("metronomeBtn").addEventListener("click", () => {
+      if (isMetronomeOn) {
         clearInterval(metronomeInterval);
         metronomeInterval = null;
         isMetronomeOn = false;
         document.getElementById("metronomeBtn").textContent = "METRONOME";
-    } else {
-        playMetronomeClick(); // Initial click
-        metronomeInterval = setInterval(playMetronomeClick, 1000); // Beat every second
+      } else {
+        playMetronomeClick(); 
+        metronomeInterval = setInterval(playMetronomeClick, 1000);
         isMetronomeOn = true;
         document.getElementById("metronomeBtn").textContent = "STOP METRONOME";
-    }
-});
-// Global Controls
-const tempoControl = document.getElementById("tempoControl");
-const volumeControl = document.getElementById("volumeControl");
-const pitchControl = document.getElementById("pitchControl");
-const reverbControl = document.getElementById("reverbControl");
-const delayControl = document.getElementById("delayControl");
-
-// Volume Gain Node
-const masterGain = audioCtx.createGain();
-masterGain.gain.value = volumeControl.value;
-masterGain.connect(audioCtx.destination);
-
-// Reverb (Convolver Node)
-const reverb = audioCtx.createConvolver();
-fetch("https://www.myserver.com/impulse-response.wav") // You can replace this with a real impulse response file
-    .then(response => response.arrayBuffer())
-    .then(data => audioCtx.decodeAudioData(data))
-    .then(buffer => reverb.buffer = buffer);
-
-// Delay (Echo)
-const delay = audioCtx.createDelay();
-delay.delayTime.value = 0;
-
-// Update Volume
-volumeControl.addEventListener("input", () => {
-    masterGain.gain.value = volumeControl.value;
-});
-
-// Update Tempo (Affects Playback Speed)
-tempoControl.addEventListener("input", () => {
-    const speed = tempoControl.value / 100;
-    recordedLayers.forEach(layer => {
-        layer.forEach(entry => {
-            entry.startTime *= speed;
-            entry.duration *= speed;
-        });
+      }
     });
-});
 
-// Update Pitch (Affects Frequency)
-pitchControl.addEventListener("input", () => {
-    recordedLayers.forEach(layer => {
-        layer.forEach(entry => {
-            entry.frequency *= Math.pow(2, pitchControl.value / 12);
-        });
+    // === Global Controls (sliders) ===
+    const tempoControl = document.getElementById("tempoControl");
+    const volumeControl = document.getElementById("volumeControl");
+    const pitchControl = document.getElementById("pitchControl");
+    const reverbControl = document.getElementById("reverbControl");
+    const delayControl = document.getElementById("delayControl");
+
+    // Volume
+    volumeControl.addEventListener("input", () => {
+      masterGain.gain.value = volumeControl.value;
     });
-});
 
-// Update Reverb
-reverbControl.addEventListener("input", () => {
-    if (reverbControl.value > 0) {
-        masterGain.connect(reverb).connect(audioCtx.destination);
-    } else {
-        masterGain.disconnect(reverb);
-    }
-});
+    // Tempo => adjust speed factor of recorded notes
+    tempoControl.addEventListener("input", () => {
+      const speed = tempoControl.value / 100;
+      recordedLayers.forEach(layer => {
+        layer.forEach(entry => {
+          entry.startTime *= speed;
+          entry.duration *= speed;
+        });
+      });
+    });
 
-// Update Delay (Echo)
-delayControl.addEventListener("input", () => {
-    delay.delayTime.value = delayControl.value;
-});
+    // Pitch => multiply frequencies
+    pitchControl.addEventListener("input", () => {
+      const semitones = parseFloat(pitchControl.value);
+      recordedLayers.forEach(layer => {
+        layer.forEach(entry => {
+          entry.frequency *= Math.pow(2, semitones / 12);
+        });
+      });
+    });
 
+    // Reverb => If > 0, connect, else disconnect
+    reverbControl.addEventListener("input", () => {
+      if (parseFloat(reverbControl.value) > 0) {
+        // We can pretend the slider controls the wet/dry mix by adjusting gain or filter,
+        // but simplest is to connect or disconnect. For a real mix, you'd blend signals.
+        delay.disconnect();
+        delay.connect(reverb);
+      } else {
+        // skip convolver
+        delay.disconnect();
+        delay.connect(masterGain);
+      }
+    });
+
+    // Delay => adjust delayTime
+    delayControl.addEventListener("input", () => {
+      delay.delayTime.value = parseFloat(delayControl.value);
+    });
   </script>
 </body>
 </html>
