@@ -174,19 +174,19 @@
     
           <!-- Column 6: now "choir" -->
           <div class="column" data-sound="choir">
-            <button id="end_number_dozen_00" class="button blue" data-frequency="230">0</button>
-            <button id="end_number_dozen_10" class="button blue" data-frequency="260">1</button>
-            <button id="end_number_dozen_20" class="button blue" data-frequency="290">2</button>
-            <button id="end_number_dozen_30" class="button blue" data-frequency="320">3</button>
-            <button id="end_number_unit_01" class="button blue" data-frequency="380">1</button>
-            <button id="end_number_unit_02" class="button blue" data-frequency="410">2</button>
-            <button id="end_number_unit_03" class="button blue" data-frequency="440">3</button>
-            <button id="end_number_unit_04" class="button blue" data-frequency="470">4</button>
-            <button id="end_number_unit_05" class="button blue" data-frequency="500">5</button>
-            <button id="end_number_unit_06" class="button blue" data-frequency="530">6</button>
-            <button id="end_number_unit_07" class="button blue" data-frequency="560">7</button>
-            <button id="end_number_unit_08" class="button blue" data-frequency="590">8</button>
-            <button id="end_number_unit_09" class="button blue" data-frequency="350">9</button>
+            <button id="end_number_dozen_00" class="button blue" data-frequency="440.00">0</button>
+            <button id="end_number_dozen_10" class="button blue" data-frequency="466.16">1</button>
+            <button id="end_number_dozen_20" class="button blue" data-frequency="493.88">2</button>
+            <button id="end_number_dozen_30" class="button blue" data-frequency="523.25">3</button>
+            <button id="end_number_unit_01" class="button blue" data-frequency="554.37">1</button>
+            <button id="end_number_unit_02" class="button blue" data-frequency="587.33">2</button>
+            <button id="end_number_unit_03" class="button blue" data-frequency="622.25">3</button>
+            <button id="end_number_unit_04" class="button blue" data-frequency="659.25">4</button>
+            <button id="end_number_unit_05" class="button blue" data-frequency="698.46">5</button>
+            <button id="end_number_unit_06" class="button blue" data-frequency="739.99">6</button>
+            <button id="end_number_unit_07" class="button blue" data-frequency="783.99">7</button>
+            <button id="end_number_unit_08" class="button blue" data-frequency="830.61">8</button>
+            <button id="end_number_unit_09" class="button blue" data-frequency="880.00">9</button>
           </div>
     
         </div>
@@ -445,24 +445,78 @@
 
     // 3) Choir
     function playChoir(frequency) {
-      const osc = audioCtx.createOscillator();
-      const formantFilter = audioCtx.createBiquadFilter();
-      const gain = audioCtx.createGain();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-      osc.type = 'sine';
-      osc.frequency.value = frequency;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(1.0, audioCtx.currentTime); // Instant attack
+    gain.gain.setTargetAtTime(0.9, audioCtx.currentTime + 0.3, 0.1); // Hold volume briefly
+    gain.gain.setTargetAtTime(0.001, audioCtx.currentTime + 2, 0.7); // Decay naturally
 
-      formantFilter.type = 'bandpass';
-      formantFilter.frequency.value = 800;
-      formantFilter.Q.value = 10;
+    // Function to create an oscillator with vibrato
+    function createOscillator(freq, detune = 0, vibratoDepth = 2) {
+        const osc = audioCtx.createOscillator();
+        osc.type = "sawtooth"; // Richer harmonics
+        osc.frequency.value = freq + detune;
 
-      gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+        // Vibrato LFO (Slow Pitch Modulation)
+        const vibrato = audioCtx.createOscillator();
+        vibrato.type = "sine";
+        vibrato.frequency.value = 3.5; // 3.5 Hz vibrato rate (random)
+        
+        const vibratoGain = audioCtx.createGain();
+        vibratoGain.gain.value = vibratoDepth; // Vibrato depth
+        vibrato.connect(vibratoGain).connect(osc.frequency);
 
-      osc.connect(formantFilter).connect(gain).connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 2);
+        vibrato.start();
+        osc.start();
+
+        return { osc, vibrato };
     }
+
+    // Create multiple voices
+    const voices = [
+        createOscillator(frequency, 0),       // Main frequency
+        createOscillator(frequency * 0.98, 0),// Slightly lower detune
+        createOscillator(frequency * 1.02, 0),// Slightly higher detune
+        createOscillator(frequency / 2, -5),  // Low octave drone
+        createOscillator(frequency / 2.02, 5),// Low drone variation
+        createOscillator(frequency * 2, 10),  // Higher octave for fullness
+    ];
+
+    // Create multiple bandpass filters (Formants for "Aah" vowel)
+    function createFormantFilter(freq) {
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.value = freq;
+        filter.Q.value = 8; // Sharp formant filtering
+        return filter;
+    }
+
+    const formantFilters = [
+        createFormantFilter(500),  // Deep vowel base
+        createFormantFilter(750),  // Mid vowel shape
+        createFormantFilter(1100), // Brighter vocal sound
+        createFormantFilter(2500), // Upper vowel clarity
+    ];
+
+    // Connect all voices through the formant filters
+    voices.forEach(({ osc }) => {
+        formantFilters.forEach((filter) => {
+            osc.connect(filter).connect(gain);
+        });
+    });
+
+    gain.connect(audioCtx.destination);
+
+    // Stop after 2.5 seconds
+    setTimeout(() => {
+        voices.forEach(({ osc, vibrato }) => {
+            osc.stop();
+            vibrato.stop();
+        });
+    }, 300);
+}
+
 
     // 4) Synth1: Warm Pad with Detune
     function playSynth1(frequency) {
