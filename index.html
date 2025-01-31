@@ -218,7 +218,7 @@
      *        SUPABASE Client Setup
      ****************************************/
     const SUPABASE_URL = "https://ixthgaoizmbuqlapgked.supabase.co";
-    const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE"; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4dGhnYW9pem1idXFsYXBna2VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgwODIwNjcsImV4cCI6MjA1MzY1ODA2N30.uBvoKtSOYjL03sNr_lG9re3V2f20IOn-pg1WBgofFew";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     /****************************************
@@ -321,6 +321,84 @@
         }
       }
     }
+
+    /****************************************
+ *   FIND BUTTON POSITION IN MATRIX
+ ****************************************/
+function findButtonPosition(btn) {
+  for (let rowIndex = 0; rowIndex < buttonMatrix.length; rowIndex++) {
+    for (let colIndex = 0; colIndex < buttonMatrix[rowIndex].length; colIndex++) {
+      if (buttonMatrix[rowIndex][colIndex] === btn) {
+        return [rowIndex, colIndex]; // Found the button's position
+      }
+    }
+  }
+  return null; // Button not found
+}
+
+/****************************************
+ *   FIND NEIGHBORING BUTTONS
+ ****************************************/
+function getNeighbors(row, col) {
+  const neighbors = [];
+
+  // Check if adjacent buttons exist in the same row
+  if (col - 1 >= 0) {
+    neighbors.push([row, col - 1]); // Left
+  }
+  if (col + 1 < buttonMatrix[row].length) {
+    neighbors.push([row, col + 1]); // Right
+  }
+
+  // Check if buttons exist in rows above and below
+  if (row - 1 >= 0 && buttonMatrix[row - 1][col]) {
+    neighbors.push([row - 1, col]); // Above
+  }
+  if (row + 1 < buttonMatrix.length && buttonMatrix[row + 1][col]) {
+    neighbors.push([row + 1, col]); // Below
+  }
+
+  return neighbors;
+}
+
+/****************************************
+ *   BFS WAVE LIGHT-UP ANIMATION
+ ****************************************/
+function animateWave(startBtn) {
+  const startPos = findButtonPosition(startBtn);
+  if (!startPos) return; // Exit if button position is not found
+
+  const visited = new Set();
+  const queue = [{ pos: startPos, dist: 0 }];
+  const maxDist = 5; // Spread over 5 steps
+  const delayPerStep = 80; // 80ms delay per wave step
+
+  while (queue.length > 0) {
+    const { pos, dist } = queue.shift();
+    const key = pos.join(',');
+
+    if (visited.has(key)) continue;
+    visited.add(key);
+
+    // Delay the lighting effect based on distance
+    setTimeout(() => {
+      const [r, c] = pos;
+      buttonMatrix[r][c].classList.add('lit');
+      
+      // Remove 'lit' after 300ms
+      setTimeout(() => {
+        buttonMatrix[r][c].classList.remove('lit');
+      }, 300);
+    }, dist * delayPerStep);
+
+    // Continue spreading the wave if within the max range
+    if (dist < maxDist) {
+      const neighbors = getNeighbors(...pos);
+      neighbors.forEach(n => queue.push({ pos: n, dist: dist + 1 }));
+    }
+  }
+}
+
 
     /****************************************
      *       SOUND FUNCTIONS
