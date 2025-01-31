@@ -105,6 +105,28 @@
       text-align: center;
       box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow */
     }
+    .sequencer-tools {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 10px;
+    background-color: #222;
+    color: white;
+    border-bottom: 2px solid #0066cc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.sequencer-tools label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.sequencer-tools input {
+    width: 100px;
+}
+
   </style>
 </head>
 <body>
@@ -191,11 +213,23 @@
     
         </div>
     
+
+        <div class="sequencer-tools">
+            <label>Tempo: <input type="range" id="tempoControl" min="50" max="200" value="100"></label>
+            <label>Volume: <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5"></label>
+            <label>Pitch Shift: <input type="range" id="pitchControl" min="-12" max="12" value="0"></label>
+            <label>Reverb: <input type="range" id="reverbControl" min="0" max="1" step="0.01" value="0"></label>
+            <label>Echo (Delay): <input type="range" id="delayControl" min="0" max="1" step="0.01" value="0"></label>
+        </div>
+        
+
        
         <!-- RECORD and DELETE LOOP Buttons -->
         <div class="big-button-container">
           <button id="recordBtn" class="big-button">RECORD</button>
           <button id="deleteBtn" class="big-button" disabled>DELETE LOOP</button>
+          <button id="metronomeBtn" class="big-button">METRONOME</button>
+
         </div>
     
         <footer class="footer">
@@ -1027,6 +1061,107 @@
       deleteCurrentLoop();
     }
   }, { passive: false });
+
+  let metronomeInterval = null;
+let isMetronomeOn = false;
+
+function playMetronomeClick() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc.type = "sine"; // Smooth, rounded sound
+    osc.frequency.value = 800; // Gentle percussive tic (try 600-1000 for variations)
+
+    filter.type = "lowpass"; 
+    filter.frequency.value = 1200; // Softens the tic sound
+    filter.Q.value = 1;
+
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime); // Lower initial volume
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); // Short decay (soft fade-out)
+
+    osc.connect(filter).connect(gain).connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+}
+
+// Toggle metronome on/off
+document.getElementById("metronomeBtn").addEventListener("click", () => {
+    if (isMetronomeOn) {
+        clearInterval(metronomeInterval);
+        metronomeInterval = null;
+        isMetronomeOn = false;
+        document.getElementById("metronomeBtn").textContent = "METRONOME";
+    } else {
+        playMetronomeClick(); // Initial click
+        metronomeInterval = setInterval(playMetronomeClick, 1000); // Beat every second
+        isMetronomeOn = true;
+        document.getElementById("metronomeBtn").textContent = "STOP METRONOME";
+    }
+});
+// Global Controls
+const tempoControl = document.getElementById("tempoControl");
+const volumeControl = document.getElementById("volumeControl");
+const pitchControl = document.getElementById("pitchControl");
+const reverbControl = document.getElementById("reverbControl");
+const delayControl = document.getElementById("delayControl");
+
+// Volume Gain Node
+const masterGain = audioCtx.createGain();
+masterGain.gain.value = volumeControl.value;
+masterGain.connect(audioCtx.destination);
+
+// Reverb (Convolver Node)
+const reverb = audioCtx.createConvolver();
+fetch("https://www.myserver.com/impulse-response.wav") // You can replace this with a real impulse response file
+    .then(response => response.arrayBuffer())
+    .then(data => audioCtx.decodeAudioData(data))
+    .then(buffer => reverb.buffer = buffer);
+
+// Delay (Echo)
+const delay = audioCtx.createDelay();
+delay.delayTime.value = 0;
+
+// Update Volume
+volumeControl.addEventListener("input", () => {
+    masterGain.gain.value = volumeControl.value;
+});
+
+// Update Tempo (Affects Playback Speed)
+tempoControl.addEventListener("input", () => {
+    const speed = tempoControl.value / 100;
+    recordedLayers.forEach(layer => {
+        layer.forEach(entry => {
+            entry.startTime *= speed;
+            entry.duration *= speed;
+        });
+    });
+});
+
+// Update Pitch (Affects Frequency)
+pitchControl.addEventListener("input", () => {
+    recordedLayers.forEach(layer => {
+        layer.forEach(entry => {
+            entry.frequency *= Math.pow(2, pitchControl.value / 12);
+        });
+    });
+});
+
+// Update Reverb
+reverbControl.addEventListener("input", () => {
+    if (reverbControl.value > 0) {
+        masterGain.connect(reverb).connect(audioCtx.destination);
+    } else {
+        masterGain.disconnect(reverb);
+    }
+});
+
+// Update Delay (Echo)
+delayControl.addEventListener("input", () => {
+    delay.delayTime.value = delayControl.value;
+});
+
   </script>
 </body>
 </html>
